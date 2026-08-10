@@ -1,0 +1,21 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: ${TEST_DATABASE_URL:jdbc:postgresql://localhost:5432/gavahub_test}
+    username: ${TEST_DATABASE_USERNAME:gavahub}
+    password: ${TEST_DATABASE_PASSWORD:gavahub}
+    hikari:
+      maximum-pool-size: 5
+  flyway:
+    clean-disabled: false
+
+logging:
+  level:
+    root: WARN
+    com.gavahub: INFO
+
+gava-hub:
+  mpesa:
+    environment: sandbox

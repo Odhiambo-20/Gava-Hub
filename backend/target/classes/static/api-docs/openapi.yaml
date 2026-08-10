@@ -1,0 +1,98 @@
+openapi: 3.1.0
+info:
+  title: Gava Hub API
+  version: 1.0.0
+  description: Industrial credential verification, billing, document, notification, and M-Pesa API.
+servers:
+  - url: /api/v1
+security:
+  - bearerAuth: []
+paths:
+  /contact:
+    post:
+      security: []
+      summary: Submit a public support enquiry
+      responses: {"202": {description: Enquiry stored and queued for support}, "400": {description: Invalid enquiry}}
+  /auth/register:
+    post:
+      security: []
+      summary: Register an account
+      responses: {"201": {description: Account created}, "400": {description: Invalid request}, "409": {description: Email exists}}
+  /auth/login:
+    post:
+      security: []
+      summary: Log in and receive a JWT
+      responses: {"200": {description: Authenticated}, "400": {description: Invalid credentials}}
+  /users:
+    get:
+      summary: List users (administrator)
+      responses: {"200": {description: Users}}
+  /users/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get user, responses: {"200": {description: User}, "404": {description: Not found}}}
+    put: {summary: Update user, responses: {"200": {description: Updated}}}
+    delete: {summary: Disable user, responses: {"204": {description: Disabled}}}
+  /organizations:
+    get: {summary: List organizations, responses: {"200": {description: Organizations}}}
+    post: {summary: Create organization, responses: {"201": {description: Created}}}
+  /organizations/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get organization, responses: {"200": {description: Organization}}}
+    put: {summary: Update organization, responses: {"200": {description: Updated}}}
+    delete: {summary: Close organization, responses: {"204": {description: Closed}}}
+  /candidates/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get candidate, responses: {"200": {description: Candidate}}}
+    put: {summary: Update candidate, responses: {"200": {description: Updated}}}
+    delete: {summary: Archive candidate, responses: {"204": {description: Archived}}}
+  /candidates:
+    post: {summary: Create candidate profile, responses: {"201": {description: Created}}}
+  /credentials:
+    get: {summary: List candidate credentials, responses: {"200": {description: Credentials}}}
+    post: {summary: Create credential, responses: {"201": {description: Created}}}
+  /credentials/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get credential, responses: {"200": {description: Credential}}}
+    put: {summary: Update credential, responses: {"200": {description: Updated}}}
+    delete: {summary: Revoke credential, responses: {"204": {description: Revoked}}}
+  /verifications:
+    get: {summary: List verification requests, responses: {"200": {description: Requests}}}
+    post: {summary: Create verification request, responses: {"201": {description: Created}}}
+  /verifications/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get verification request, responses: {"200": {description: Request}}}
+    put: {summary: Update verification workflow, responses: {"200": {description: Updated}}}
+    delete: {summary: Cancel verification request, responses: {"204": {description: Cancelled}}}
+  /documents:
+    post:
+      summary: Upload a document
+      requestBody: {required: true, content: {multipart/form-data: {schema: {type: object, required: [file], properties: {file: {type: string, format: binary}, ownerUserId: {type: string, format: uuid}, ownerOrganizationId: {type: string, format: uuid}}}}}}
+      responses: {"201": {description: Uploaded}}
+  /documents/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get document metadata, responses: {"200": {description: Document}}}
+    delete: {summary: Soft-delete document, responses: {"204": {description: Deleted}}}
+  /documents/{id}/content:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Download document, responses: {"200": {description: File content}}}
+  /invoices:
+    get: {summary: List invoices, responses: {"200": {description: Invoices}}}
+    post: {summary: Create invoice, responses: {"201": {description: Created}}}
+  /invoices/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get invoice, responses: {"200": {description: Invoice}}}
+    put: {summary: Update invoice, responses: {"200": {description: Updated}}}
+    delete: {summary: Void invoice, responses: {"204": {description: Voided}}}
+  /payments/mpesa/stk-push:
+    post: {summary: Initiate idempotent M-Pesa STK Push, responses: {"201": {description: Payment initiated}, "409": {description: Invoice not payable}}}
+  /payments/{id}:
+    parameters: [{$ref: '#/components/parameters/Id'}]
+    get: {summary: Get immutable payment state, responses: {"200": {description: Payment}}}
+  /notifications:
+    get: {summary: List user notifications, responses: {"200": {description: Notifications}}}
+    post: {summary: Queue email, SMS, or in-app notification, responses: {"202": {description: Queued}}}
+components:
+  securitySchemes:
+    bearerAuth: {type: http, scheme: bearer, bearerFormat: JWT}
+  parameters:
+    Id: {name: id, in: path, required: true, schema: {type: string, format: uuid}}

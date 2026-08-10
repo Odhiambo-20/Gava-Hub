@@ -1,0 +1,27 @@
+spring:
+  config:
+    activate:
+      on-profile: staging
+  datasource:
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      password: ${REDIS_PASSWORD}
+
+server:
+  tomcat:
+    threads:
+      max: ${SERVER_MAX_THREADS:100}
+
+logging:
+  level:
+    root: INFO
+    com.gavahub: INFO
+
+gava-hub:
+  public-base-url: ${PUBLIC_BASE_URL}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}

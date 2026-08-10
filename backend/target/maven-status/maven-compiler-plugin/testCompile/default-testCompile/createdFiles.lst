@@ -1,0 +1,4 @@
+com/gavahub/GavaHubApplicationTests.class
+com/gavahub/document/infrastructure/LocalDocumentStorageTests.class
+com/gavahub/payment/infrastructure/daraja/MpesaCallbackVerifierTests.class
+com/gavahub/shared/validation/PhoneNumbersTests.class
