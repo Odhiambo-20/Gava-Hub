@@ -18,7 +18,7 @@
     <description>Gava Hub credential verification and payment platform</description>
 
     <properties>
-        <java.version>25</java.version>
+        <java.version>17</java.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -139,10 +139,10 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>[25,26)</version>
+                                    <version>[17,18)</version>
                                 </requireJavaVersion>
                                 <requireMavenVersion>
-                                    <version>[3.9.0,)</version>
+                                    <version>[3.8.7,)</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
