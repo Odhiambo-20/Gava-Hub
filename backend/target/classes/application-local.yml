@@ -2,10 +2,22 @@ spring:
   config:
     activate:
       on-profile: local
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/gavahub}
+    username: ${DATABASE_USERNAME:gavahub}
+    password: ${DATABASE_PASSWORD:gavahub}
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6380}
+      password: ${REDIS_PASSWORD:gavahub}
   jpa:
     show-sql: false
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoint:
     health:
       show-details: always
