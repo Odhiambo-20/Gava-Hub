@@ -53,7 +53,12 @@ export function Footer() {
               </li>
               <li className="flex items-start gap-3">
                 <Mail className="mt-0.5 h-4 w-4 text-leaf" />
-                info@wihlverify.org
+                <a
+                  href="mailto:info@wihlverify.org"
+                  className="underline underline-offset-4 hover:opacity-80"
+                >
+                  info@wihlverify.org
+                </a>
               </li>
             </ul>
           </div>

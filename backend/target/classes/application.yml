@@ -111,6 +111,10 @@ gava-hub:
     endpoint: ${OBJECT_STORAGE_ENDPOINT:}
     region: ${OBJECT_STORAGE_REGION:af-south-1}
     signed-url-ttl: ${DOCUMENT_SIGNED_URL_TTL:PT5M}
+  payments:
+    method: ${PAYMENT_METHOD:COOP_PAYBILL}
+    coop-paybill-number: ${COOP_PAYBILL_NUMBER:400200}
+    coop-account-number: ${COOP_ACCOUNT_NUMBER:1195351}
   mpesa:
     environment: ${MPESA_ENVIRONMENT:sandbox}
     consumer-key: ${MPESA_CONSUMER_KEY:}

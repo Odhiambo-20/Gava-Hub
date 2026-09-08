@@ -144,7 +144,12 @@ function ContactPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <InfoCard icon={MapPin} title="Office" body="Upper Hill, Nairobi, Kenya" />
               <InfoCard icon={Phone} title="Phone" body="+254 700 000 000" />
-              <InfoCard icon={Mail} title="Email" body="info@wihlverify.org" />
+              <InfoCard
+                icon={Mail}
+                title="Email"
+                body="info@wihlverify.org"
+                href="mailto:info@wihlverify.org"
+              />
               <InfoCard icon={Clock} title="Hours" body="Mon – Fri, 8am – 5pm EAT" />
             </div>
           </div>
@@ -188,16 +193,26 @@ function InfoCard({
   icon: Icon,
   title,
   body,
+  href,
 }: {
   icon: typeof MapPin;
   title: string;
   body: string;
+  href?: string;
 }) {
   return (
     <div className="card-elevated p-5">
       <Icon className="h-5 w-5 text-leaf-deep" />
       <p className="mt-3 text-sm font-semibold text-navy">{title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{body}</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {href ? (
+          <a href={href} className="underline underline-offset-4 hover:opacity-80">
+            {body}
+          </a>
+        ) : (
+          body
+        )}
+      </p>
     </div>
   );
 }

@@ -8,6 +8,23 @@ servers:
 security:
   - bearerAuth: []
 paths:
+  /payments/configuration:
+    get:
+      summary: Get the configured payment method and collection availability
+      description: Co-op collection remains unavailable until bank integration is implemented and verified.
+      responses:
+        "200":
+          description: Payment configuration (requires authentication)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [method, available, paybillNumber, accountNumber]
+                properties:
+                  method: {type: string, enum: [COOP_PAYBILL, DARAJA]}
+                  available: {type: boolean}
+                  paybillNumber: {type: string, example: "400200"}
+                  accountNumber: {type: string, example: "1195351"}
   /contact:
     post:
       security: []

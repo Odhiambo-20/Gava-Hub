@@ -76,8 +76,14 @@ function Billing() {
             <ErrorText error={configuration.error} />
           ) : !configuration.data?.available ? (
             <p role="status" className="text-sm text-muted-foreground">
-              Payments are temporarily unavailable. Please contact info@wihlverify.org for
-              assistance before making a payment.
+              Payments are temporarily unavailable. Please contact{" "}
+              <a
+                href="mailto:info@wihlverify.org"
+                className="underline underline-offset-4 hover:opacity-80"
+              >
+                info@wihlverify.org
+              </a>{" "}
+              for assistance before making a payment.
             </p>
           ) : invoice ? (
             <form
