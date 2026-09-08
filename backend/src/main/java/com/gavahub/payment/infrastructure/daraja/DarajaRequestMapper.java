@@ -26,7 +26,7 @@ public class DarajaRequestMapper {
         request.put("PartyA", phone); request.put("PartyB", properties.shortcode()); request.put("PhoneNumber", phone);
         request.put("CallBackURL", properties.callbackBaseUrl() + "/stk?token="
                 + java.net.URLEncoder.encode(properties.callbackSecret(), StandardCharsets.UTF_8));
-        request.put("AccountReference", reference); request.put("TransactionDesc", "Gava Hub payment");
+        request.put("AccountReference", reference); request.put("TransactionDesc", "Wihl Verify payment");
         return request;
     }
 

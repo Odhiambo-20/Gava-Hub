@@ -1,4 +1,4 @@
-# Gava Hub backend
+# Wihl Verify backend
 
 Spring Boot modular monolith for identity, organizations, candidates,
 credentials, documents, verification, billing, M-Pesa payments, notifications,

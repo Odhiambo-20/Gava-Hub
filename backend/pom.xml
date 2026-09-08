@@ -14,8 +14,8 @@
     <groupId>com.gavahub</groupId>
     <artifactId>gava-hub-backend</artifactId>
     <version>0.1.0-SNAPSHOT</version>
-    <name>Gava Hub Backend</name>
-    <description>Gava Hub credential verification and payment platform</description>
+    <name>Wihl Verify Backend</name>
+    <description>Wihl Verify credential verification and payment platform</description>
 
     <properties>
         <java.version>17</java.version>
