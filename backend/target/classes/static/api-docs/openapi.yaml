@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: Gava Hub API
+  title: Wihl Verify API
   version: 1.0.0
   description: Industrial credential verification, billing, document, notification, and M-Pesa API.
 servers:

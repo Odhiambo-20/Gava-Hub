@@ -53,6 +53,22 @@ password; changing the Compose variable alone is insufficient.
 
 ## Run the backend
 
+### VS Code setup
+
+The repository's `.vscode/settings.json` maps Java 17 to
+`/usr/lib/jvm/java-17-openjdk-amd64`. Adjust this path if your JDK is installed
+elsewhere. Maven and the project both require Java 17.
+
+If the Problems panel reports `release 25 is not found in the system`, run
+**Java: Clean Java Language Server Workspace** from the Command Palette
+(`Ctrl+Shift+P`) and allow VS Code to restart. This clears stale compiler
+settings and reimports the Maven project with Java 17.
+
+Workspace settings also exclude dependencies and generated build directories
+from file watching to reduce Linux file watcher usage.
+
+### Start the application
+
 ```bash
 cd backend
 mvn spring-boot:run
