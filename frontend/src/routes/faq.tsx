@@ -116,7 +116,7 @@ function FaqPage() {
               <p className="mt-2 text-sm text-muted-foreground">
                 Our team responds to verification queries within one working day.
               </p>
-              <p className="mt-4 text-sm font-semibold text-leaf-deep">support@gavahub.co.ke</p>
+              <p className="mt-4 text-sm font-semibold text-leaf-deep">info@wihlverify.org</p>
             </div>
           </div>
         </div>

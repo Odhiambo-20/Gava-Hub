@@ -144,7 +144,7 @@ function ContactPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <InfoCard icon={MapPin} title="Office" body="Upper Hill, Nairobi, Kenya" />
               <InfoCard icon={Phone} title="Phone" body="+254 700 000 000" />
-              <InfoCard icon={Mail} title="Email" body="support@gavahub.co.ke" />
+              <InfoCard icon={Mail} title="Email" body="info@wihlverify.org" />
               <InfoCard icon={Clock} title="Hours" body="Mon – Fri, 8am – 5pm EAT" />
             </div>
           </div>

@@ -149,8 +149,8 @@ SMTP_HOST=<smtp-host>
 SMTP_PORT=587
 SMTP_USERNAME=<smtp-user>
 SMTP_PASSWORD=<smtp-secret>
-NOTIFICATION_FROM_EMAIL=no-reply@yourdomain.example
-CONTACT_SUPPORT_EMAIL=support@yourdomain.example
+NOTIFICATION_FROM_EMAIL=info@wihlverify.org
+CONTACT_SUPPORT_EMAIL=info@wihlverify.org
 
 SMS_PROVIDER_URL=<provider-endpoint>
 SMS_PROVIDER_API_KEY=<provider-secret>

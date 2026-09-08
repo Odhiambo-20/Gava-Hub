@@ -122,10 +122,10 @@ gava-hub:
     connect-timeout: 5s
     read-timeout: 20s
   notifications:
-    from-email: ${NOTIFICATION_FROM_EMAIL:no-reply@gavahub.local}
+    from-email: ${NOTIFICATION_FROM_EMAIL:info@wihlverify.org}
     sms-url: ${SMS_PROVIDER_URL:}
     sms-api-key: ${SMS_PROVIDER_API_KEY:}
     max-attempts: ${NOTIFICATION_MAX_ATTEMPTS:5}
     poll-delay: ${NOTIFICATION_POLL_DELAY:PT10S}
   contact:
-    support-email: ${CONTACT_SUPPORT_EMAIL:support@gavahub.co.ke}
+    support-email: ${CONTACT_SUPPORT_EMAIL:info@wihlverify.org}

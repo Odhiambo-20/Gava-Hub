@@ -6,6 +6,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record ContactProperties(String supportEmail) {
     public ContactProperties {
         supportEmail = supportEmail == null || supportEmail.isBlank()
-                ? "support@gavahub.co.ke" : supportEmail;
+                ? "info@wihlverify.org" : supportEmail;
     }
 }
