@@ -1,8 +1,6 @@
 package com.gavahub;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.SpringBootConfiguration;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,6 +24,8 @@ class GavaHubApplicationTests {
     @Autowired JdbcClient jdbc;
     @Autowired AuthService auth;
 
+    // The Testcontainers JUnit extension starts and closes this shared container.
+    @SuppressWarnings("resource")
     @Container
     @ServiceConnection
     static final PostgreSQLContainer postgres =

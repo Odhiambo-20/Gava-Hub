@@ -2,7 +2,6 @@ package com.gavahub.payment.infrastructure.daraja;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 

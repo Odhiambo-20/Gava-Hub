@@ -63,7 +63,7 @@ public class PaymentService implements InitiatePaymentUseCase, ProcessMpesaCallb
     @Transactional
     public void process(JsonNode payload) {
         JsonNode callback = payload.path("Body").path("stkCallback");
-        String checkout = callback.path("CheckoutRequestID").asText();
+        String checkout = callback.path("CheckoutRequestID").asString();
         if (checkout.isBlank()) throw new IllegalArgumentException("Missing CheckoutRequestID");
         int resultCode = callback.path("ResultCode").asInt(-1);
         String eventKey = "stk:" + checkout;
@@ -84,7 +84,7 @@ public class PaymentService implements InitiatePaymentUseCase, ProcessMpesaCallb
         Instant completed = resultCode == 0 ? Instant.now() : null;
         Payment updated = payments.save(new Payment(current.id(), current.invoiceId(), current.initiatedByUserId(),
                 current.provider(), current.amount(), current.currency(), status, current.idempotencyKey(),
-                Integer.toString(resultCode), callback.path("ResultDesc").asText(), completed,
+                Integer.toString(resultCode), callback.path("ResultDesc").asString(), completed,
                 current.createdAt(), Instant.now()));
         JsonNode metadata = callback.path("CallbackMetadata").path("Item");
         String receipt = metadata(metadata, "MpesaReceiptNumber");
@@ -96,7 +96,7 @@ public class PaymentService implements InitiatePaymentUseCase, ProcessMpesaCallb
                     else to_timestamp(:transactionDate,'YYYYMMDDHH24MISS') end,
                 response_payload=cast(:payload as jsonb) where payment_id=:paymentId
                 """)
-                .param("code", Integer.toString(resultCode)).param("description", callback.path("ResultDesc").asText())
+                .param("code", Integer.toString(resultCode)).param("description", callback.path("ResultDesc").asString())
                 .param("receipt", receipt).param("transactionDate", transactionDate)
                 .param("payload", payload.toString()).param("paymentId", paymentId).update();
         if (status == PaymentStatus.COMPLETED) {
@@ -147,7 +147,7 @@ public class PaymentService implements InitiatePaymentUseCase, ProcessMpesaCallb
 
     private String metadata(JsonNode items, String name) {
         if (!items.isArray()) return null;
-        for (JsonNode item : items) if (name.equals(item.path("Name").asText())) return item.path("Value").asText(null);
+        for (JsonNode item : items) if (name.equals(item.path("Name").asString())) return item.path("Value").asString(null);
         return null;
     }
     private void markWebhook(String eventKey,String status,String error) {

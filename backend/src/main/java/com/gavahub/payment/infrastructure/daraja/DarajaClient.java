@@ -39,8 +39,8 @@ public class DarajaClient implements PaymentProvider {
                 .contentType(MediaType.APPLICATION_JSON).body(mapper.stkQuery(checkoutRequestId))
                 .retrieve().body(JsonNode.class);
         if (response == null) throw new IllegalStateException("Daraja query response was empty");
-        return new QueryResult(response.path("ResponseCode").asText(null), response.path("ResultCode").asText(null),
-                response.path("ResultDesc").asText(null), response.toString());
+        return new QueryResult(response.path("ResponseCode").asString(null), response.path("ResultCode").asString(null),
+                response.path("ResultDesc").asString(null), response.toString());
     }
 
     private record StkResponse(

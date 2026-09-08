@@ -1,7 +1,6 @@
 package com.gavahub.notification.application;
 
 import com.gavahub.notification.infrastructure.NotificationProperties;
-import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.jdbc.core.simple.JdbcClient;
