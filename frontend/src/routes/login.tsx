@@ -10,16 +10,16 @@ import { ApiError } from "@/lib/api/client";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Sign in or Register | Gava Hub" },
+      { title: "Sign in or Register | Wihl Verify" },
       {
         name: "description",
         content:
-          "Sign in to your Gava Hub account or register as a candidate, employer or institution to start verifying credentials.",
+          "Sign in to your Wihl Verify account or register as a candidate, employer or institution to start verifying credentials.",
       },
-      { property: "og:title", content: "Sign in or Register | Gava Hub" },
+      { property: "og:title", content: "Sign in or Register | Wihl Verify" },
       {
         property: "og:description",
-        content: "Access your candidate, employer or institution dashboard on Gava Hub.",
+        content: "Access your candidate, employer or institution dashboard on Wihl Verify.",
       },
     ],
   }),
@@ -58,7 +58,7 @@ function LoginPage() {
           </div>
 
           <h1 className="mt-8 text-3xl font-bold text-navy md:text-4xl">
-            {mode === "signin" ? "Welcome back to Gava Hub" : "Create your Gava Hub account"}
+            {mode === "signin" ? "Welcome back to Wihl Verify" : "Create your Wihl Verify account"}
           </h1>
           <p className="mt-3 max-w-lg text-muted-foreground">
             {mode === "signin"
@@ -113,13 +113,13 @@ function LoginPage() {
                   description:
                     mode === "register" && role !== "candidate"
                       ? "Your account is ready. Organisation onboarding will continue from your dashboard."
-                      : "Your secure Gava Hub session is now active.",
+                      : "Your secure Wihl Verify session is now active.",
                 });
                 await navigate({ to: "/dashboard" });
               } catch (error) {
                 toast.error(mode === "signin" ? "Sign in failed" : "Registration failed", {
                   description:
-                    error instanceof ApiError ? error.message : "Could not reach the Gava Hub API.",
+                    error instanceof ApiError ? error.message : "Could not reach the Wihl Verify API.",
                 });
               } finally {
                 setSubmitting(false);
@@ -157,7 +157,7 @@ function LoginPage() {
         <div className="relative hidden overflow-hidden rounded-3xl lg:block">
           <img
             src={heroCandidate}
-            alt="Kenyan professional signing in to Gava Hub"
+            alt="Kenyan professional signing in to Wihl Verify"
             loading="lazy"
             width={1280}
             height={1600}

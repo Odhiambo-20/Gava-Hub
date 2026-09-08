@@ -21,13 +21,13 @@ import nairobi from "@/assets/nairobi.jpg";
 export const Route = createFileRoute("/for-employers")({
   head: () => ({
     meta: [
-      { title: "For Employers | Hire verified candidates on Gava Hub" },
+      { title: "For Employers | Hire verified candidates on Wihl Verify" },
       {
         name: "description",
         content:
           "Post jobs, search verified candidates, request credential verification and hire with confidence backed by institution-verified records.",
       },
-      { property: "og:title", content: "For Employers | Gava Hub" },
+      { property: "og:title", content: "For Employers | Wihl Verify" },
       {
         property: "og:description",
         content:

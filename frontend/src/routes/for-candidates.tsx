@@ -15,13 +15,13 @@ import skills from "@/assets/skills.jpg";
 export const Route = createFileRoute("/for-candidates")({
   head: () => ({
     meta: [
-      { title: "For Candidates | Build a verified profile on Gava Hub" },
+      { title: "For Candidates | Build a verified profile on Wihl Verify" },
       {
         name: "description",
         content:
           "Create a verified citizen profile, upload your documents, build your CV and share proof of your qualifications with Kenyan employers.",
       },
-      { property: "og:title", content: "For Candidates | Gava Hub" },
+      { property: "og:title", content: "For Candidates | Wihl Verify" },
       {
         property: "og:description",
         content:
@@ -123,7 +123,7 @@ function ForCandidates() {
           <div className="grid gap-5 sm:grid-cols-2">
             <img
               src={heroCandidate}
-              alt="Kenyan professional with a verified Gava Hub profile"
+              alt="Kenyan professional with a verified Wihl Verify profile"
               loading="lazy"
               width={1280}
               height={1600}

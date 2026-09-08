@@ -14,7 +14,7 @@ function Overview() {
   return (
     <DashboardPage
       title={`Welcome, ${profile.data.displayName}`}
-      description="Your Gava Hub account and verification activity at a glance."
+      description="Your Wihl Verify account and verification activity at a glance."
     >
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[

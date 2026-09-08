@@ -1,6 +1,6 @@
-# Gava Hub frontend
+# Wihl Verify frontend
 
-React and TanStack Start application for the Gava Hub credential verification
+React and TanStack Start application for the Wihl Verify credential verification
 platform. It provides public product pages, authentication, candidate and
 organization workflows, document and credential management, verification,
 billing, M-Pesa payments, notifications, and administration.
@@ -19,7 +19,7 @@ billing, M-Pesa payments, notifications, and administration.
 
 - Node.js 22.12 or newer
 - npm
-- Gava Hub backend running on port `8080` for local integration
+- Wihl Verify backend running on port `8080` for local integration
 
 ## Install and run
 

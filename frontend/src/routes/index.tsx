@@ -34,13 +34,13 @@ import verifyDesk from "@/assets/verify-desk.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Gava Hub | Verified People. Trusted Hiring." },
+      { title: "Wihl Verify | Verified People. Trusted Hiring." },
       {
         name: "description",
         content:
           "Store, verify and share your credentials, qualifications and work experience through a secure platform trusted by Kenyan employers and institutions.",
       },
-      { property: "og:title", content: "Gava Hub | Verified People. Trusted Hiring." },
+      { property: "og:title", content: "Wihl Verify | Verified People. Trusted Hiring." },
       {
         property: "og:description",
         content:
@@ -182,7 +182,7 @@ function Index() {
         <SectionTitle
           eyebrow="One platform, three roles"
           title="Built for the people who need trust the most"
-          intro="Gava Hub connects citizens, employers and institutions in a single verification chain — professional, secure and government-oriented."
+          intro="Wihl Verify connects citizens, employers and institutions in a single verification chain — professional, secure and government-oriented."
         />
         <div className="mt-12 grid gap-7 md:grid-cols-3">
           {audiences.map((a) => (
@@ -193,7 +193,7 @@ function Index() {
             >
               <img
                 src={a.image}
-                alt={`${a.title} using Gava Hub in Kenya`}
+                alt={`${a.title} using Wihl Verify in Kenya`}
                 loading="lazy"
                 width={1280}
                 height={960}
@@ -275,7 +275,7 @@ function Index() {
       <Section>
         <SectionTitle
           align="center"
-          eyebrow="Why Gava Hub"
+          eyebrow="Why Wihl Verify"
           title="Trust you can document"
           intro="No social feed. No likes. No noise. Just verified records that employers and institutions can rely on."
         />
@@ -338,7 +338,7 @@ function Index() {
             <SectionTitle
               eyebrow="Every kind of talent"
               title="Graduates, artisans, interns and professionals"
-              intro="Whether you trained at a university, a TVET or on the job, Gava Hub gives your experience a verifiable record — so opportunity follows proof, not connections."
+              intro="Whether you trained at a university, a TVET or on the job, Wihl Verify gives your experience a verifiable record — so opportunity follows proof, not connections."
             />
             <ul className="mt-8 space-y-4">
               {[

@@ -10,7 +10,7 @@ export function Footer() {
           <div>
             <Logo variant="light" />
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-primary-foreground/70">
-              Gava Hub is a trusted verification ecosystem for employment and professional
+              Wihl Verify is a trusted verification ecosystem for employment and professional
               development in Kenya — helping employers trust candidate information and helping
               candidates prove who they are.
             </p>
@@ -22,7 +22,7 @@ export function Footer() {
             </h3>
             <ul className="mt-4 space-y-2.5 text-sm text-primary-foreground/70">
               {[
-                { to: "/about", label: "About Gava Hub" },
+                { to: "/about", label: "About Wihl Verify" },
                 { to: "/how-it-works", label: "How It Works" },
                 { to: "/for-candidates", label: "For Candidates" },
                 { to: "/for-employers", label: "For Employers" },
@@ -60,7 +60,7 @@ export function Footer() {
         </div>
 
         <div className="mx-auto flex max-w-7xl flex-col gap-2 border-t border-white/10 px-5 py-6 text-xs text-primary-foreground/55 md:flex-row md:items-center md:justify-between">
-          <p>&copy; {new Date().getFullYear()} Gava Hub. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} Wihl Verify. All rights reserved.</p>
           <p>Verified People. Trusted Hiring.</p>
         </div>
       </div>

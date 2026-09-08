@@ -6,7 +6,7 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
     <Link to="/" className="flex items-center gap-3">
       <img
         src={logo}
-        alt="Gava Hub logo"
+        alt="Wihl Verify logo"
         width={44}
         height={44}
         className="h-11 w-11 shrink-0 rounded-full bg-white object-contain"
@@ -17,7 +17,7 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
             variant === "light" ? "text-primary-foreground" : "text-navy"
           }`}
         >
-          Gava Hub
+          Wihl Verify
         </span>
         <span
           className={`block text-[0.68rem] font-semibold uppercase tracking-[0.16em] ${

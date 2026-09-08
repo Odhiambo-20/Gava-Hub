@@ -8,13 +8,13 @@ import skills from "@/assets/skills.jpg";
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
     meta: [
-      { title: "How It Works | Gava Hub verification workflow" },
+      { title: "How It Works | Wihl Verify verification workflow" },
       {
         name: "description",
         content:
-          "See how Gava Hub moves a document from upload to a verified record: registration, upload, verification request, institution review and audit log.",
+          "See how Wihl Verify moves a document from upload to a verified record: registration, upload, verification request, institution review and audit log.",
       },
-      { property: "og:title", content: "How Gava Hub verification works" },
+      { property: "og:title", content: "How Wihl Verify verification works" },
       {
         property: "og:description",
         content:
@@ -64,7 +64,7 @@ function HowItWorks() {
       <PageHero
         eyebrow="How it works"
         title="A clear, traceable path from document to trusted record"
-        intro="Gava Hub routes every verification request to the right authority and keeps a permanent, auditable record of the outcome."
+        intro="Wihl Verify routes every verification request to the right authority and keeps a permanent, auditable record of the outcome."
         image={verifyDesk}
         alt="Registrar verifying academic records at a desk"
       />
@@ -101,7 +101,7 @@ function HowItWorks() {
             <SectionTitle
               eyebrow="Experience verification"
               title="Work history counts, not just certificates"
-              intro="Candidates enter the organisation name, supervisor name and duration. Gava Hub then supports verification of internships, attachments, volunteer work and part-time work."
+              intro="Candidates enter the organisation name, supervisor name and duration. Wihl Verify then supports verification of internships, attachments, volunteer work and part-time work."
             />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
               {[

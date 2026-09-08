@@ -74,14 +74,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Gava Hub | Verified People. Trusted Hiring." },
+      { title: "Wihl Verify | Verified People. Trusted Hiring." },
       {
         name: "description",
         content:
-          "Gava Hub is a trusted verification ecosystem where Kenyan candidates, employers and institutions verify credentials securely.",
+          "Wihl Verify is a trusted verification ecosystem where Kenyan candidates, employers and institutions verify credentials securely.",
       },
-      { name: "author", content: "Gava Hub" },
-      { property: "og:title", content: "Gava Hub | Verified People. Trusted Hiring." },
+      { name: "author", content: "Wihl Verify" },
+      { property: "og:title", content: "Wihl Verify | Verified People. Trusted Hiring." },
       {
         property: "og:description",
         content:

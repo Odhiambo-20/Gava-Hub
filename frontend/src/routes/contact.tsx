@@ -12,13 +12,13 @@ import { ApiError } from "@/lib/api/client";
 export const Route = createFileRoute("/contact")({
   head: () => ({
     meta: [
-      { title: "Contact Gava Hub | Talk to our verification team" },
+      { title: "Contact Wihl Verify | Talk to our verification team" },
       {
         name: "description",
         content:
-          "Reach the Gava Hub team in Nairobi for candidate support, employer onboarding or institution partnership enquiries.",
+          "Reach the Wihl Verify team in Nairobi for candidate support, employer onboarding or institution partnership enquiries.",
       },
-      { property: "og:title", content: "Contact Gava Hub" },
+      { property: "og:title", content: "Contact Wihl Verify" },
       {
         property: "og:description",
         content: "Candidate support, employer onboarding and institution partnerships.",
@@ -35,10 +35,10 @@ function ContactPage() {
     <SiteLayout>
       <PageHero
         eyebrow="Contact us"
-        title="Talk to the Gava Hub team"
+        title="Talk to the Wihl Verify team"
         intro="Whether you are a candidate needing help with a document, an employer onboarding your team or an institution ready to partner — we are here."
         image={support}
-        alt="Gava Hub support team member"
+        alt="Wihl Verify support team member"
       />
 
       <Section>
@@ -78,7 +78,7 @@ function ContactPage() {
                     description:
                       error instanceof ApiError
                         ? error.message
-                        : "Could not reach the Gava Hub API. Please try again.",
+                        : "Could not reach the Wihl Verify API. Please try again.",
                   });
                 } finally {
                   setSending(false);
@@ -135,7 +135,7 @@ function ContactPage() {
           <div className="space-y-6">
             <img
               src={nairobi}
-              alt="Nairobi skyline where Gava Hub is based"
+              alt="Nairobi skyline where Wihl Verify is based"
               loading="lazy"
               width={1600}
               height={912}

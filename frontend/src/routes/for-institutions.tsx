@@ -21,13 +21,13 @@ import verifyDesk from "@/assets/verify-desk.jpg";
 export const Route = createFileRoute("/for-institutions")({
   head: () => ({
     meta: [
-      { title: "For Institutions | Verify credentials on Gava Hub" },
+      { title: "For Institutions | Verify credentials on Wihl Verify" },
       {
         name: "description",
         content:
           "Universities, colleges, TVETs, training centres and professional bodies verify academic and professional records submitted by candidates.",
       },
-      { property: "og:title", content: "For Institutions | Gava Hub" },
+      { property: "og:title", content: "For Institutions | Wihl Verify" },
       {
         property: "og:description",
         content:
@@ -145,7 +145,7 @@ function ForInstitutions() {
       </Section>
 
       <CtaBand
-        title="Partner with Gava Hub"
+        title="Partner with Wihl Verify"
         body="Register your institution and start receiving verification requests through a secure channel."
         primaryLabel="Register your institution"
       />

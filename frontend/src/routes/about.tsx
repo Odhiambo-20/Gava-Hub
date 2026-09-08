@@ -15,13 +15,13 @@ import mobileUser from "@/assets/mobile-user.jpg";
 export const Route = createFileRoute("/about")({
   head: () => ({
     meta: [
-      { title: "About Gava Hub | A trusted verification ecosystem" },
+      { title: "About Wihl Verify | A trusted verification ecosystem" },
       {
         name: "description",
         content:
-          "Gava Hub is a trusted verification ecosystem for employment and professional development, connecting talent, education and employers in Kenya.",
+          "Wihl Verify is a trusted verification ecosystem for employment and professional development, connecting talent, education and employers in Kenya.",
       },
-      { property: "og:title", content: "About Gava Hub" },
+      { property: "og:title", content: "About Wihl Verify" },
       {
         property: "og:description",
         content:
@@ -36,7 +36,7 @@ function AboutPage() {
   return (
     <SiteLayout>
       <PageHero
-        eyebrow="About Gava Hub"
+        eyebrow="About Wihl Verify"
         title="A trusted verification ecosystem for work and learning"
         intro="We enable individuals to manage their professional records, employers to verify candidate information and institutions to validate credentials through a secure, transparent process."
         image={employers}
@@ -49,10 +49,10 @@ function AboutPage() {
             <SectionTitle
               eyebrow="Our purpose"
               title="Improving trust between talent and opportunity"
-              intro="By improving trust, Gava Hub helps create stronger connections between talent, education and employment opportunities. The platform is deliberately professional, secure and government-oriented."
+              intro="By improving trust, Wihl Verify helps create stronger connections between talent, education and employment opportunities. The platform is deliberately professional, secure and government-oriented."
             />
             <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-              Gava Hub is not a social media platform. There is no feed, no likes, no comments and
+              Wihl Verify is not a social media platform. There is no feed, no likes, no comments and
               no networking posts — only verified records, clear verification status and a full
               audit trail for every request.
             </p>
@@ -60,7 +60,7 @@ function AboutPage() {
           <div className="grid gap-5 sm:grid-cols-2">
             <img
               src={mobileUser}
-              alt="Kenyan woman using the Gava Hub platform on her phone"
+              alt="Kenyan woman using the Wihl Verify platform on her phone"
               loading="lazy"
               width={1280}
               height={960}

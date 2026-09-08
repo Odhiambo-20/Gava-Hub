@@ -8,13 +8,13 @@ import support from "@/assets/support.jpg";
 export const Route = createFileRoute("/faq")({
   head: () => ({
     meta: [
-      { title: "FAQ | Gava Hub verification questions answered" },
+      { title: "FAQ | Wihl Verify verification questions answered" },
       {
         name: "description",
         content:
-          "Answers about registering on Gava Hub, document uploads, verification timelines, data security and who can see your records.",
+          "Answers about registering on Wihl Verify, document uploads, verification timelines, data security and who can see your records.",
       },
-      { property: "og:title", content: "Gava Hub FAQ" },
+      { property: "og:title", content: "Wihl Verify FAQ" },
       {
         property: "og:description",
         content: "Common questions from candidates, employers and institutions.",
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/faq")({
 
 const faqs = [
   {
-    q: "Who can register on Gava Hub?",
+    q: "Who can register on Wihl Verify?",
     a: "Candidates (citizens), employers and institutions such as universities, colleges, TVETs, training centres, certification bodies and professional associations.",
   },
   {
@@ -50,8 +50,8 @@ const faqs = [
     a: "You control sharing. Employers see what you share with them, and every verification request and access event is logged.",
   },
   {
-    q: "Is Gava Hub a social network?",
-    a: "No. There is no social feed, no likes, no comments and no networking posts. Gava Hub exists purely for verification and trusted hiring.",
+    q: "Is Wihl Verify a social network?",
+    a: "No. There is no social feed, no likes, no comments and no networking posts. Wihl Verify exists purely for verification and trusted hiring.",
   },
   {
     q: "What is coming next?",
@@ -67,9 +67,9 @@ function FaqPage() {
       <PageHero
         eyebrow="FAQ"
         title="Questions about verification, answered"
-        intro="Everything candidates, employers and institutions ask most often about how Gava Hub works."
+        intro="Everything candidates, employers and institutions ask most often about how Wihl Verify works."
         image={support}
-        alt="Gava Hub support agent ready to help"
+        alt="Wihl Verify support agent ready to help"
       />
 
       <Section>
@@ -124,7 +124,7 @@ function FaqPage() {
 
       <CtaBand
         title="Ready when you are"
-        body="Create your Gava Hub account and start building verified records."
+        body="Create your Wihl Verify account and start building verified records."
       />
     </SiteLayout>
   );
