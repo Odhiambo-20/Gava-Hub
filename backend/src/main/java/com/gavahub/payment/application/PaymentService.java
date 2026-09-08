@@ -1,6 +1,7 @@
 package com.gavahub.payment.application;
 
 import tools.jackson.databind.JsonNode;
+import com.gavahub.payment.infrastructure.PaymentSettings;
 import com.gavahub.payment.domain.*;
 import com.gavahub.shared.exception.ConflictException;
 import com.gavahub.shared.exception.ResourceNotFoundException;
@@ -17,19 +18,24 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PaymentService implements InitiatePaymentUseCase, ProcessMpesaCallbackUseCase, ReconcilePaymentUseCase {
+    private final PaymentSettings settings;
     private final PaymentRepository payments;
     private final PaymentProvider provider;
     private final JdbcClient jdbc;
     private final ApplicationEventPublisher events;
 
     public PaymentService(PaymentRepository payments, PaymentProvider provider, JdbcClient jdbc,
-                          ApplicationEventPublisher events) {
+                          ApplicationEventPublisher events, PaymentSettings settings) {
+        this.settings = settings;
         this.payments = payments; this.provider = provider; this.jdbc = jdbc; this.events = events;
     }
 
     @Override
     @Transactional
     public Payment initiate(UUID invoiceId, UUID userId, String phoneNumber, String idempotencyKey) {
+        if (settings.method() != PaymentSettings.Method.DARAJA) {
+            throw new ConflictException("STK Push is unavailable for the configured payment method");
+        }
         var prior = payments.findByIdempotencyKey(idempotencyKey);
         if (prior.isPresent()) return prior.get();
         InvoiceAmount invoice = jdbc.sql("select total, currency, status from gavahub.invoice where id = :id")

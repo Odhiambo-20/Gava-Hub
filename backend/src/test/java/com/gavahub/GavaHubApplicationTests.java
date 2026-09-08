@@ -23,6 +23,17 @@ class GavaHubApplicationTests {
     @Autowired ContactService contacts;
     @Autowired JdbcClient jdbc;
     @Autowired AuthService auth;
+    @Autowired com.gavahub.payment.api.PaymentController paymentController;
+
+    @Test
+    void coopConfigurationIsBoundAndCollectionRemainsUnavailable() {
+        var configuration = paymentController.configuration();
+        assertThat(configuration.method()).isEqualTo(
+                com.gavahub.payment.infrastructure.PaymentSettings.Method.COOP_PAYBILL);
+        assertThat(configuration.paybillNumber()).isEqualTo("400200");
+        assertThat(configuration.accountNumber()).isEqualTo("1195351");
+        assertThat(configuration.available()).isFalse();
+    }
 
     // The Testcontainers JUnit extension starts and closes this shared container.
     @SuppressWarnings("resource")

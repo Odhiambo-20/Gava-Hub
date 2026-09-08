@@ -17,6 +17,10 @@ export const Route = createFileRoute("/dashboard/billing")({ component: Billing 
 function Billing() {
   const [invoice, setInvoice] = useState<Invoice>();
   const qc = useQueryClient();
+  const configuration = useQuery({
+    queryKey: ["payment-configuration"],
+    queryFn: dashboardApi.paymentConfiguration,
+  });
   const invoices = useQuery({ queryKey: ["invoices"], queryFn: dashboardApi.invoices });
   const payments = useQuery({
     queryKey: ["payments"],
@@ -32,13 +36,15 @@ function Billing() {
   });
   return (
     <DashboardPage
-      title="Billing and M-Pesa"
-      description="Review invoices, initiate STK Push, and monitor payment status."
+      title="Billing and payments"
+      description="Review your invoices and payment status."
     >
       <div className="grid gap-6 lg:grid-cols-2">
         <Panel title="Invoices">
           {invoices.isPending ? (
             <Loading />
+          ) : invoices.error ? (
+            <ErrorText error={invoices.error} />
           ) : invoices.data?.length ? (
             <div className="space-y-3">
               {invoices.data.map((i) => (
@@ -61,8 +67,19 @@ function Billing() {
             <Empty>No invoices issued to your account.</Empty>
           )}
         </Panel>
-        <Panel title="Pay with M-Pesa">
-          {invoice ? (
+        <Panel
+          title={configuration.data?.method === "COOP_PAYBILL" ? "Co-op Bank payments" : "Payment"}
+        >
+          {configuration.isPending ? (
+            <Loading />
+          ) : configuration.error ? (
+            <ErrorText error={configuration.error} />
+          ) : !configuration.data?.available ? (
+            <p role="status" className="text-sm text-muted-foreground">
+              Payments are temporarily unavailable. Please contact info@wihlverify.org for
+              assistance before making a payment.
+            </p>
+          ) : invoice ? (
             <form
               className="space-y-3"
               onSubmit={(e) => {
@@ -89,7 +106,11 @@ function Billing() {
         </Panel>
       </div>
       <Panel title="Payment history">
-        {payments.data?.length ? (
+        {payments.isPending ? (
+          <Loading />
+        ) : payments.error ? (
+          <ErrorText error={payments.error} />
+        ) : payments.data?.length ? (
           <div className="space-y-3">
             {payments.data.map((p) => (
               <div className="flex justify-between rounded-xl border p-4" key={p.id}>

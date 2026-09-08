@@ -171,7 +171,51 @@ secrets in the deployment platform's secret manager, restrict CORS to the final
 frontend origins, terminate TLS at the load balancer or Nginx, and configure
 database backups and document-storage retention.
 
-## M-Pesa Daraja
+## Co-op Bank payments: integration pending
+
+The selected payment method is now `COOP_PAYBILL`, using PayBill `400200` and
+account `1195351`. Configure these values on the backend (Docker Compose forwards
+them):
+
+```env
+PAYMENT_METHOD=COOP_PAYBILL
+COOP_PAYBILL_NUMBER=400200
+COOP_ACCOUNT_NUMBER=1195351
+```
+
+This is preparation, not a live bank integration. The billing page displays a
+payment-unavailable notice and new Daraja STK requests return HTTP 409 in Co-op
+mode. `GET /api/v1/payments/configuration` requires authentication and reports
+`available: false`. There is deliberately no environment switch that enables
+Co-op collection without a verified adapter.
+
+The public [INS simulator specification](https://developer.co-opbank.co.ke/api/am/store/v1/apis/680af948-e960-4c2e-a11a-e654520925ad/swagger)
+provides the notification fields and an optional Basic Authentication credential
+for the callback endpoint. Its posting `AccountNumber` is **14 digits**; the
+customer payment code `1195351` must not be assumed to be that account number.
+Confirm the linked posting account and invoice reference mapping with Co-op.
+
+To complete automatic confirmation, confirm the enabled service's bank contract:
+notification payload and authentication, sandbox/production endpoints, retry and
+acknowledgement rules, transaction lookup/reconciliation API, reversal handling,
+and the supported invoice-matching reference. Do not append an invoice number to
+account `1195351` without bank confirmation that this routing format is supported.
+Do not match deposits by amount alone.
+
+The adapter must validate notifications and receiving account, deduplicate bank
+transaction IDs, and atomically match the correct invoice, amount and currency
+before recording payment and marking the invoice paid. Unmatched deposits and
+reversals require an explicit reconciliation workflow. Production activation
+requires sandbox end-to-end tests and bank approval.
+
+Existing Daraja callbacks and reconciliation remain for previously initiated
+transactions. Keep their existing credentials while those transactions settle.
+`PAYMENT_METHOD=DARAJA` restores the legacy STK flow for an authorized Daraja
+shortcode; it does not enable Co-op PayBill collection.
+
+Reference: [Co-op payment notification services](https://www.co-opbank.co.ke/corporate/ict-infrastructure-construction/).
+
+## M-Pesa Daraja (legacy)
 
 Sandbox:
 

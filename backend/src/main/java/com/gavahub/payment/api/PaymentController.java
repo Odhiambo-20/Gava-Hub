@@ -2,6 +2,7 @@ package com.gavahub.payment.api;
 
 import com.gavahub.payment.application.PaymentService;
 import com.gavahub.payment.domain.Payment;
+import com.gavahub.payment.infrastructure.PaymentSettings;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +16,21 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/payments")
 public class PaymentController {
     private final PaymentService payments;
-    public PaymentController(PaymentService payments) { this.payments = payments; }
+    private final PaymentSettings settings;
+    public PaymentController(PaymentService payments, PaymentSettings settings) {
+        this.payments = payments;
+        this.settings = settings;
+    }
+
+    @GetMapping("/configuration")
+    public PaymentConfiguration configuration() {
+        return new PaymentConfiguration(settings.method(), settings.available(),
+                settings.coopPaybillNumber(), settings.coopAccountNumber());
+    }
+
+    public record PaymentConfiguration(PaymentSettings.Method method, boolean available,
+                                       String paybillNumber, String accountNumber) {}
+
 
     @PostMapping("/mpesa/stk-push")
     public ResponseEntity<Payment> initiate(

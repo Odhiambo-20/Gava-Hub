@@ -185,6 +185,13 @@ export const dashboardApi = {
     authenticatedRequest<Verification>(`/verifications/${id}/decisions`, json("POST", body)),
   invoices: () => authenticatedRequest<Invoice[]>(`/invoices?userId=${userId()}`),
   createInvoice: (body: unknown) => authenticatedRequest<Invoice>("/invoices", json("POST", body)),
+  paymentConfiguration: () =>
+    authenticatedRequest<{
+      method: "COOP_PAYBILL" | "DARAJA";
+      available: boolean;
+      paybillNumber: string;
+      accountNumber: string;
+    }>("/payments/configuration"),
   pay: (invoiceId: string, phoneNumber: string) =>
     authenticatedRequest<Payment>("/payments/mpesa/stk-push", {
       ...json("POST", { invoiceId, userId: userId(), phoneNumber }),
