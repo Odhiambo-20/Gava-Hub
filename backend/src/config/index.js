@@ -1,0 +1,1 @@
+export const config = { port: Number(process.env.PORT || process.env.SERVER_PORT || 8080), apiPrefix: '/api/v1', paymentMethod: process.env.PAYMENT_METHOD || 'COOP_PAYBILL', coopPaybillNumber: process.env.COOP_PAYBILL_NUMBER || '400200', coopAccountNumber: process.env.COOP_ACCOUNT_NUMBER || '1195351' };
