@@ -4,12 +4,14 @@ import cors from 'cors';
 import helmet from 'helmet';
 import pinoHttp from 'pino-http';
 import { randomUUID } from 'node:crypto';
+import { validateProductionConfig } from './config/index.js';
 
 const app = express();
 const port = Number(process.env.PORT || process.env.SERVER_PORT || 8080);
 const api = '/api/v1';
 const stores = Object.fromEntries(['users', 'candidates', 'organizations', 'documents', 'credentials', 'verifications', 'invoices', 'payments', 'notifications', 'audit'].map((key) => [key, []]));
 const id = () => randomUUID();
+validateProductionConfig();
 
 app.disable('x-powered-by');
 app.use(helmet());
