@@ -1,11 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Clock, Mail, MapPin, Phone, Send } from "lucide-react";
+import { Clock, ExternalLink, Mail, MapPin, Phone, Send } from "lucide-react";
 import { toast } from "sonner";
 import { SiteLayout } from "@/components/site/Layout";
 import { PageHero, Section, SectionTitle } from "@/components/site/primitives";
 import support from "@/assets/support.jpg";
-import nairobi from "@/assets/nairobi.jpeg";
 import { submitContact, type RequesterType } from "@/lib/api/contact";
 import { ApiError } from "@/lib/api/client";
 
@@ -133,14 +132,24 @@ function ContactPage() {
           </div>
 
           <div className="space-y-6">
-            <img
-              src={nairobi}
-              alt="Nairobi skyline where Wihl Verify is based"
-              loading="lazy"
-              width={1600}
-              height={912}
-              className="h-64 w-full rounded-2xl object-cover"
-            />
+            <div className="overflow-hidden rounded-2xl border border-border bg-secondary">
+              <iframe
+                title="Map showing Upper Hill, Nairobi"
+                src="https://www.openstreetmap.org/export/embed.html?bbox=36.796%2C-1.307%2C36.830%2C-1.282&layer=mapnik&marker=-1.29412%2C36.81291"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-72 w-full"
+              />
+              <a
+                href="https://www.openstreetmap.org/?mlat=-1.29412&mlon=36.81291#map=16/-1.29412/36.81291"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-navy transition-colors hover:bg-secondary"
+              >
+                View Upper Hill on OpenStreetMap
+                <ExternalLink className="h-4 w-4 shrink-0 text-leaf-deep" />
+              </a>
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <InfoCard icon={MapPin} title="Office" body="Upper Hill, Nairobi, Kenya" />
               <InfoCard icon={Phone} title="Phone" body="+254 700 000 000" />
