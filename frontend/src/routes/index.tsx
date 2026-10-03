@@ -21,7 +21,6 @@ import {
   FeatureCard,
   Section,
   SectionTitle,
-  StatCard,
 } from "@/components/site/primitives";
 import heroCandidate from "@/assets/hero-candidate.jpg";
 import employers from "@/assets/employers.jpg";
@@ -80,9 +79,17 @@ function Index() {
     <SiteLayout>
       {/* HERO */}
       <div className="surface-navy relative overflow-hidden">
-        <div className="grid-lines">
-          <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 py-16 md:py-24 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="reveal">
+        <img
+          src={heroCandidate}
+          alt="Kenyan professional woman holding a tablet in a Nairobi office"
+          width={1280}
+          height={1600}
+          className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-navy-deep/95 via-navy-deep/75 to-navy-deep/25" />
+        <div className="relative">
+          <div className="mx-auto flex min-h-[38rem] max-w-7xl items-center px-5 py-16 md:min-h-[44rem] md:py-24">
+            <div className="reveal max-w-2xl">
               <Eyebrow tone="light">Verified People. Trusted Hiring.</Eyebrow>
               <h1 className="mt-5 text-4xl font-bold text-primary-foreground md:text-6xl md:leading-[1.04]">
                 Prove who you are.
@@ -108,43 +115,6 @@ function Index() {
                 </Link>
               </div>
 
-              <div className="mt-12 grid gap-4 sm:grid-cols-3">
-                <StatCard value="4" label="User types" />
-                <StatCard value="7" label="Document types" />
-                <StatCard value="100%" label="Audit logged" />
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="relative overflow-hidden rounded-3xl border border-white/15">
-                <img
-                  src={heroCandidate}
-                  alt="Kenyan professional woman holding a tablet in a Nairobi office"
-                  width={1280}
-                  height={1600}
-                  className="h-[26rem] w-full object-cover object-top md:h-[34rem]"
-                />
-              </div>
-
-              <div className="card-elevated absolute -bottom-6 left-4 w-64 p-4 md:-left-8">
-                <div className="flex items-center gap-3">
-                  <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-leaf/15 text-leaf-deep">
-                    <BadgeCheck className="h-5 w-5" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-navy">Degree Verified</p>
-                    <p className="text-xs text-muted-foreground">Ref GH-2026-04871</p>
-                  </div>
-                </div>
-                <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
-                  <div className="h-full w-[86%] rounded-full bg-leaf" />
-                </div>
-              </div>
-
-              <div className="card-elevated absolute -top-5 right-2 hidden items-center gap-2 px-4 py-3 md:flex">
-                <Lock className="h-4 w-4 text-navy" />
-                <span className="text-xs font-semibold text-navy">Secure & consent based</span>
-              </div>
             </div>
           </div>
         </div>
@@ -225,7 +195,7 @@ function Index() {
           height={960}
           className="ken-burns absolute inset-0 h-full w-full object-cover opacity-20"
         />
-        <div className="grid-lines relative">
+        <div className="relative">
           <Section>
             <SectionTitle
               tone="light"

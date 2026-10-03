@@ -5,7 +5,7 @@ import { Logo } from "./Logo";
 export function Footer() {
   return (
     <footer className="surface-navy mt-24">
-      <div className="grid-lines">
+      <div>
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <Logo variant="light" />

@@ -110,7 +110,7 @@ export function CtaBand({
   return (
     <Section>
       <div className="surface-navy overflow-hidden rounded-3xl">
-        <div className="grid-lines px-8 py-14 md:px-14">
+        <div className="px-8 py-14 md:px-14">
           <div className="max-w-2xl">
             <Eyebrow tone="light">Get started</Eyebrow>
             <h2 className="mt-4 text-3xl font-bold text-primary-foreground md:text-4xl">{title}</h2>
@@ -159,7 +159,7 @@ export function PageHero({
         height={960}
         className="ken-burns absolute inset-0 h-full w-full object-cover opacity-25"
       />
-      <div className="grid-lines relative">
+      <div className="relative">
         <div className="mx-auto max-w-7xl px-5 py-20 md:py-28">
           <div className="reveal max-w-3xl">
             <Eyebrow tone="light">{eyebrow}</Eyebrow>
