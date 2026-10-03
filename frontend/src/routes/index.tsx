@@ -15,6 +15,7 @@ import {
   UserRoundCheck,
 } from "lucide-react";
 import { SiteLayout } from "@/components/site/Layout";
+import { HeroCarousel } from "@/components/site/HeroCarousel";
 import {
   CtaBand,
   Eyebrow,
@@ -22,12 +23,11 @@ import {
   Section,
   SectionTitle,
 } from "@/components/site/primitives";
-import heroCandidate from "@/assets/hero-candidate.jpg";
 import employers from "@/assets/employers.jpg";
 import institutions from "@/assets/institutions.jpg";
 import skills from "@/assets/skills.jpg";
 import mobileUser from "@/assets/mobile-user.jpg";
-import nairobi from "@/assets/nairobi.jpg";
+import nairobi from "@/assets/nairobi.jpeg";
 import verifyDesk from "@/assets/verify-desk.jpg";
 
 export const Route = createFileRoute("/")({
@@ -77,48 +77,7 @@ const audiences = [
 function Index() {
   return (
     <SiteLayout>
-      {/* HERO */}
-      <div className="surface-navy relative overflow-hidden">
-        <img
-          src={heroCandidate}
-          alt="Kenyan professional woman holding a tablet in a Nairobi office"
-          width={1280}
-          height={1600}
-          className="absolute inset-0 h-full w-full object-cover object-[center_20%]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-navy-deep/95 via-navy-deep/75 to-navy-deep/25" />
-        <div className="relative">
-          <div className="mx-auto flex min-h-[38rem] max-w-7xl items-center px-5 py-16 md:min-h-[44rem] md:py-24">
-            <div className="reveal max-w-2xl">
-              <Eyebrow tone="light">Verified People. Trusted Hiring.</Eyebrow>
-              <h1 className="mt-5 text-4xl font-bold text-primary-foreground md:text-6xl md:leading-[1.04]">
-                Prove who you are.
-                <span className="block text-leaf">Hire who you trust.</span>
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/75">
-                Store, verify and share your credentials, qualifications and work experience through
-                a secure platform trusted by employers and institutions across Kenya.
-              </p>
-
-              <div className="mt-9 flex flex-wrap gap-3">
-                <Link
-                  to="/login"
-                  className="inline-flex items-center gap-2 rounded-lg bg-leaf px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-leaf-deep"
-                >
-                  Create your account <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  to="/how-it-works"
-                  className="rounded-lg border border-white/25 px-6 py-3.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-white/10"
-                >
-                  See how it works
-                </Link>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </div>
+      <HeroCarousel />
 
       {/* MARQUEE */}
       <div className="overflow-hidden border-y border-border bg-secondary/60 py-4">

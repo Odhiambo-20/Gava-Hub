@@ -16,7 +16,7 @@ import {
   SectionTitle,
 } from "@/components/site/primitives";
 import employers from "@/assets/employers.jpg";
-import nairobi from "@/assets/nairobi.jpg";
+import nairobi from "@/assets/nairobi.jpeg";
 
 export const Route = createFileRoute("/for-employers")({
   head: () => ({

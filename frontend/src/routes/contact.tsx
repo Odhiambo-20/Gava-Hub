@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { SiteLayout } from "@/components/site/Layout";
 import { PageHero, Section, SectionTitle } from "@/components/site/primitives";
 import support from "@/assets/support.jpg";
-import nairobi from "@/assets/nairobi.jpg";
+import nairobi from "@/assets/nairobi.jpeg";
 import { submitContact, type RequesterType } from "@/lib/api/contact";
 import { ApiError } from "@/lib/api/client";
 
