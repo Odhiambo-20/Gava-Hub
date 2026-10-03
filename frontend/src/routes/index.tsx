@@ -121,7 +121,7 @@ function Index() {
       </div>
 
       {/* MARQUEE */}
-      <div className="border-y border-border bg-secondary/60 py-4">
+      <div className="overflow-hidden border-y border-border bg-secondary/60 py-4">
         <div className="flex w-max marquee-track gap-10 whitespace-nowrap px-5">
           {[...Array(2)].map((_, dup) => (
             <div key={dup} className="flex gap-10">
