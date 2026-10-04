@@ -14,37 +14,65 @@ const backgroundImages = [
     src: heroImage1,
     alt: "Professionals collaborating around a conference table",
     position: "center 75%",
+    eyebrow: "For employers",
+    heading: "Build trust into every hire.",
+    description:
+      "Review reliable candidate records and make confident hiring decisions with verified credentials.",
   },
   {
     src: heroImage2,
     alt: "Black women in technology reviewing equipment in a data center",
     position: "center 50%",
+    eyebrow: "For professionals",
+    heading: "Let your skills speak for you.",
+    description:
+      "Keep your qualifications and work experience together, ready to share with employers when opportunity comes.",
   },
   {
     src: heroImage3,
     alt: "Kenyan graduate in academic regalia",
     position: "center 22%",
+    eyebrow: "For graduates",
+    heading: "Turn your qualifications into opportunity.",
+    description:
+      "Build a trusted record of your education and give employers proof they can rely on.",
   },
   {
     src: heroImage4,
     alt: "Panoramic Nairobi city skyline",
     position: "center",
     fit: "contain",
+    eyebrow: "Made for Kenya",
+    heading: "A stronger future starts with trust.",
+    description:
+      "Connect Kenya’s talent, employers and institutions through secure, straightforward verification.",
   },
   {
     src: heroImage5,
     alt: "University of Nairobi graduate holding his diploma",
     position: "center 25%",
+    eyebrow: "Your achievement, verified",
+    heading: "Make your hard work count.",
+    description:
+      "Share trusted academic records with confidence, without repeatedly chasing paper documents.",
   },
   {
     src: heroImage6,
     alt: "Two colleagues working together at a computer",
     position: "center 50%",
+    eyebrow: "Hiring made clearer",
+    heading: "See the proof behind every profile.",
+    description:
+      "Review candidate credentials in one place and follow each verification from request to result.",
   },
   {
     src: heroImage7,
     alt: "African technology team collaborating at computers",
     position: "center 35%",
+    eyebrow: "For institutions",
+    heading: "Your records. Your authority. More trust.",
+    description:
+      "Confirm credentials your institution issued and help employers make decisions with confidence.",
   },
 ];
 
@@ -94,18 +122,16 @@ export function HeroCarousel() {
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-navy-deep/95 via-navy-deep/75 to-navy-deep/25" />
 
       <div className="mx-auto flex min-h-[38rem] max-w-7xl items-center px-5 py-16 md:min-h-[44rem] md:py-24">
-        <div className="reveal max-w-2xl pb-12">
+        <div className="max-w-2xl pb-12">
           <span className="eyebrow text-leaf">
             <span className="h-px w-8 bg-current" />
-            Verified People. Trusted Hiring.
+            {backgroundImages[activeIndex].eyebrow}
           </span>
           <h1 className="mt-5 text-4xl font-bold text-primary-foreground md:text-6xl md:leading-[1.04]">
-            Prove who you are.
-            <span className="block text-leaf">Hire who you trust.</span>
+            {backgroundImages[activeIndex].heading}
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/80">
-            Store, verify and share your credentials, qualifications and work experience through a
-            secure platform trusted by employers and institutions across Kenya.
+            {backgroundImages[activeIndex].description}
           </p>
 
           <div className="mt-9 flex flex-wrap gap-3">
