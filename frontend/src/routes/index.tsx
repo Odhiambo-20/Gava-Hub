@@ -245,14 +245,14 @@ function Index() {
       {/* SKILLS FEATURE SPLIT */}
       <Section className="pt-0">
         <div className="grid items-center gap-12 lg:grid-cols-2">
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="talent-photo-bleed grid items-stretch gap-5 sm:grid-cols-2">
             <img
               src={skills}
               alt="Young Kenyan technician training in a TVET workshop"
               loading="lazy"
               width={1280}
               height={960}
-              className="h-64 w-full rounded-2xl object-cover sm:h-80"
+              className="h-64 w-full rounded-2xl object-cover sm:h-80 lg:rounded-l-none"
             />
             <img
               src={institutions}
@@ -260,7 +260,7 @@ function Index() {
               loading="lazy"
               width={1280}
               height={960}
-              className="h-64 w-full rounded-2xl object-cover sm:mt-10 sm:h-80"
+              className="h-64 w-full rounded-2xl object-cover sm:h-80"
             />
           </div>
           <div>

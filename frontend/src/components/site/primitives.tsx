@@ -166,9 +166,9 @@ export function PageHero({
         loading="lazy"
         width={1280}
         height={960}
-        className="absolute inset-0 h-full w-full object-contain object-right opacity-35"
+        className="absolute inset-0 h-full w-full object-contain object-right opacity-60"
       />
-      <div className="relative">
+      <div className="relative flex min-h-[32rem] items-center md:min-h-[36rem]">
         <div className="mx-auto max-w-7xl px-5 py-20 md:py-28">
           <div className="reveal max-w-3xl">
             <Eyebrow tone="light">{eyebrow}</Eyebrow>
