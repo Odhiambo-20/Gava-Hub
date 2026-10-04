@@ -4,60 +4,141 @@ import cors from 'cors';
 import helmet from 'helmet';
 import pinoHttp from 'pino-http';
 import { randomUUID } from 'node:crypto';
-import { validateProductionConfig } from './config/index.js';
+
+import { config, validateProductionConfig } from './config/index.js';
+import { validatePaymentConfig } from './config/payments.js';
+import { ensureStorageRoot } from './config/storage.js';
+import { connectRedis, closeRedis } from './config/redis.js';
+import { closeDatabase } from './database/index.js';
+import { errorHandler, notFoundHandler } from './middleware/errors.js';
+
+import { registerAuth } from './auth/index.js';
+import { registerUsers } from './users/index.js';
+import { registerCandidates } from './candidates/index.js';
+import { registerOrganizations } from './organizations/index.js';
+import { registerDocuments } from './documents/index.js';
+import { registerCredentials } from './credentials/index.js';
+import { registerVerifications } from './verifications/index.js';
+import { registerBilling } from './billing/index.js';
+import { registerPayments } from './payments/index.js';
+import { registerNotifications } from './notifications/index.js';
+import { registerAudit } from './audit/index.js';
+import { registerContact } from './contact.js';
+
+validateProductionConfig();
+try {
+  validatePaymentConfig();
+} catch (e) {
+  console.warn('[config] payment config warning:', e.message);
+}
 
 const app = express();
-const port = Number(process.env.PORT || process.env.SERVER_PORT || 8080);
-const api = '/api/v1';
-const stores = Object.fromEntries(['users', 'candidates', 'organizations', 'documents', 'credentials', 'verifications', 'invoices', 'payments', 'notifications', 'audit'].map((key) => [key, []]));
-const id = () => randomUUID();
-validateProductionConfig();
+const port = config.port;
+const api = config.apiPrefix;
 
 app.disable('x-powered-by');
-app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ALLOWED_ORIGINS ? process.env.CORS_ALLOWED_ORIGINS.split(',').map((value) => value.trim()) : true }));
-app.use(express.json({ limit: process.env.MAX_REQUEST_SIZE || '22mb' }));
-app.use(pinoHttp());
+app.set('trust proxy', 1);
 
-app.get('/actuator/health', (_req, res) => res.json({ status: 'UP' }));
-app.get(`${api}/system/status`, (_req, res) => res.json({ service: 'wihl-verify-backend', status: 'UP', time: new Date().toISOString() }));
-app.get(`${api}/payments/configuration`, (_req, res) => res.json({ method: process.env.PAYMENT_METHOD || 'COOP_PAYBILL', available: false, paybillNumber: process.env.COOP_PAYBILL_NUMBER || '400200', accountNumber: process.env.COOP_ACCOUNT_NUMBER || '1195351' }));
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  }),
+);
 
-app.post(`${api}/auth/register`, (req, res) => {
-  const { email, displayName, phone } = req.body || {};
-  if (!email || !displayName) return res.status(400).json({ message: 'email and displayName are required' });
-  if (stores.users.some((user) => user.email === email)) return res.status(409).json({ message: 'Email already exists' });
-  const user = { id: id(), email, displayName, phone, status: 'ACTIVE', createdAt: new Date().toISOString() };
-  stores.users.push(user);
-  res.status(201).json({ userId: user.id, email: user.email, displayName: user.displayName, accessToken: null });
+const corsOrigin =
+  config.corsOrigins.length === 1 && config.corsOrigins[0] === '*'
+    ? true
+    : config.corsOrigins;
+app.use(
+  cors({
+    origin: corsOrigin,
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'Idempotency-Key'],
+    exposedHeaders: ['X-Request-Id'],
+  }),
+);
+
+app.use(express.json({ limit: config.maxRequestSize }));
+app.use(express.urlencoded({ extended: true, limit: config.maxRequestSize }));
+
+app.use(
+  pinoHttp({
+    genReqId: (req) => req.headers['x-request-id'] || randomUUID(),
+    customProps: (req) => ({ requestId: req.id }),
+  }),
+);
+
+// Attach request id for audit
+app.use((req, res, next) => {
+  res.setHeader('X-Request-Id', req.id);
+  next();
 });
-app.post(`${api}/contact`, (req, res) => res.status(202).json({ id: id(), status: 'QUEUED', message: 'Message received' }));
 
-const collection = (name) => {
-  app.get(`${api}/${name}`, (req, res) => res.json(stores[name]));
-  app.get(`${api}/${name}/:id`, (req, res) => {
-    const item = stores[name].find((entry) => entry.id === req.params.id);
-    return item ? res.json(item) : res.status(404).json({ message: `${name} record not found` });
-  });
-  app.post(`${api}/${name}`, (req, res) => {
-    const item = { ...req.body, id: id(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    stores[name].push(item);
-    res.status(201).json(item);
-  });
-  app.put(`${api}/${name}/:id`, (req, res) => {
-    const index = stores[name].findIndex((entry) => entry.id === req.params.id);
-    if (index < 0) return res.status(404).json({ message: `${name} record not found` });
-    stores[name][index] = { ...stores[name][index], ...req.body, updatedAt: new Date().toISOString() };
-    res.json(stores[name][index]);
-  });
-  app.delete(`${api}/${name}/:id`, (req, res) => {
-    const index = stores[name].findIndex((entry) => entry.id === req.params.id);
-    if (index < 0) return res.status(404).json({ message: `${name} record not found` });
-    stores[name].splice(index, 1);
-    res.status(204).end();
-  });
-};
-for (const name of Object.keys(stores)) collection(name);
+// ── Health ──────────────────────────────────────────────────────────
+app.get('/actuator/health', (_req, res) => {
+  res.json({ status: 'UP' });
+});
 
-app.use((err, _req, res, _next) => res.status(500).json({ message: 'Internal server error' }));
-app.listen(port, '0.0.0.0', () => console.log(`Wihl Verify Node backend listening on ${port}`));
+app.get(`${api}/system/status`, (_req, res) => {
+  res.json({
+    service: 'wihl-verify-backend',
+    status: 'UP',
+    time: new Date().toISOString(),
+  });
+});
+
+// ── Public ──────────────────────────────────────────────────────────
+registerContact(app, api);
+registerAuth(app, api);
+
+// ── Authenticated domain modules ────────────────────────────────────
+registerUsers(app, api);
+registerCandidates(app, api);
+registerOrganizations(app, api);
+registerDocuments(app, api);
+registerCredentials(app, api);
+registerVerifications(app, api);
+registerBilling(app, api);
+registerPayments(app, api);
+registerNotifications(app, api);
+registerAudit(app, api);
+
+app.use(notFoundHandler);
+app.use(errorHandler);
+
+async function start() {
+  try {
+    await ensureStorageRoot();
+  } catch (err) {
+    console.warn('[storage]', err.message);
+  }
+  try {
+    await connectRedis();
+    if (config.redis.url || config.redis.password) {
+      console.log('[redis] connected');
+    }
+  } catch (err) {
+    console.warn('[redis] optional — not connected:', err.message);
+  }
+
+  const server = app.listen(port, '0.0.0.0', () => {
+    console.log(`Wihl Verify API listening on http://0.0.0.0:${port}`);
+    console.log(`API prefix: ${api}`);
+    console.log(`Storage: ${config.database.url ? 'postgres' : 'memory'} | env: ${config.nodeEnv}`);
+  });
+
+  const shutdown = async (signal) => {
+    console.log(`${signal} received — shutting down`);
+    server.close();
+    await closeRedis().catch(() => {});
+    await closeDatabase().catch(() => {});
+    process.exit(0);
+  };
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+start().catch((err) => {
+  console.error('Failed to start server', err);
+  process.exit(1);
+});
