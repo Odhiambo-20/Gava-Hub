@@ -1,7 +1,16 @@
 import { config } from './index.js';
-export const paymentConfig = Object.freeze({ ...config.payments });
-export const isCoopPaybill = () => paymentConfig.method === 'COOP_PAYBILL';
-export const isDaraja = () => paymentConfig.method === 'DARAJA';
-export const paymentInstructions = () => ({ provider: 'Co-operative Bank of Kenya', paybillNumber: paymentConfig.coopPaybillNumber, accountNumber: paymentConfig.coopAccountNumber, method: paymentConfig.method });
-export function validatePaymentConfig() { if (!/^\\d{6}$/.test(paymentConfig.coopPaybillNumber)) throw new Error('COOP_PAYBILL_NUMBER must contain six digits'); if (!/^\\d+$/.test(paymentConfig.coopAccountNumber)) throw new Error('COOP_ACCOUNT_NUMBER must contain digits only'); if (!['COOP_PAYBILL','DARAJA'].includes(paymentConfig.method)) throw new Error('Invalid PAYMENT_METHOD'); }
+import { AppError } from '../utils/errors.js';
 
+export const paymentConfig = Object.freeze({ ...config.payments });
+
+export function validatePaymentConfig() {
+  if (!/^\d{6}$/.test(paymentConfig.coopPaybillNumber)) {
+    throw new AppError('COOP_PAYBILL_NUMBER must contain six digits', 500);
+  }
+  if (!/^\d+$/.test(paymentConfig.coopAccountNumber)) {
+    throw new AppError('COOP_ACCOUNT_NUMBER must contain digits only', 500);
+  }
+  if (!['COOP_PAYBILL', 'DARAJA'].includes(paymentConfig.method)) {
+    throw new AppError('Invalid PAYMENT_METHOD', 500);
+  }
+}
