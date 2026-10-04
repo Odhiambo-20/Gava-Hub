@@ -135,18 +135,18 @@ function ContactPage() {
             <div className="overflow-hidden rounded-2xl border border-border bg-secondary">
               <iframe
                 title="Map showing Upper Hill, Nairobi"
-                src="https://www.openstreetmap.org/export/embed.html?bbox=36.796%2C-1.307%2C36.830%2C-1.282&layer=mapnik&marker=-1.29412%2C36.81291"
+                src="https://maps.google.com/maps?q=-1.29412%2C36.81291&z=15&output=embed"
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="h-72 w-full"
               />
               <a
-                href="https://www.openstreetmap.org/?mlat=-1.29412&mlon=36.81291#map=16/-1.29412/36.81291"
+                href="https://www.google.com/maps/search/?api=1&query=Upper%20Hill%2C%20Nairobi%2C%20Kenya"
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-navy transition-colors hover:bg-secondary"
               >
-                View Upper Hill on OpenStreetMap
+                View Upper Hill on Google Maps
                 <ExternalLink className="h-4 w-4 shrink-0 text-leaf-deep" />
               </a>
             </div>

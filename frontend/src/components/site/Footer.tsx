@@ -45,7 +45,15 @@ export function Footer() {
             <ul className="mt-4 space-y-3 text-sm text-primary-foreground/70">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 h-4 w-4 text-leaf" />
-                Upper Hill, Nairobi, Kenya
+                <a
+                  href="https://www.google.com/maps/search/?api=1&query=Upper%20Hill%2C%20Nairobi%2C%20Kenya"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="underline underline-offset-4 hover:text-primary-foreground"
+                  aria-label="View Upper Hill, Nairobi on Google Maps"
+                >
+                  Upper Hill, Nairobi, Kenya
+                </a>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="mt-0.5 h-4 w-4 text-leaf" />

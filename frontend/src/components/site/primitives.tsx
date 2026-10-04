@@ -153,11 +153,20 @@ export function PageHero({
     <div className="surface-navy relative overflow-hidden">
       <img
         src={image}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        width={1280}
+        height={960}
+        className="ken-burns absolute inset-0 h-full w-full scale-105 object-cover opacity-15 blur-sm"
+      />
+      <img
+        src={image}
         alt={alt}
         loading="lazy"
         width={1280}
         height={960}
-        className="ken-burns absolute inset-0 h-full w-full object-cover opacity-25"
+        className="absolute inset-0 h-full w-full object-contain object-right opacity-35"
       />
       <div className="relative">
         <div className="mx-auto max-w-7xl px-5 py-20 md:py-28">
