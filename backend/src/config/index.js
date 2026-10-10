@@ -81,6 +81,21 @@ export function validateProductionConfig() {
   if (config.security.jwtSecret.length < 32) {
     throw new Error('JWT_SECRET must contain at least 32 characters in production');
   }
+  let databaseUrl;
+  try {
+    databaseUrl = new URL(config.database.url);
+  } catch {
+    throw new Error('DATABASE_URL must be a valid PostgreSQL connection URL');
+  }
+  if (!['postgres:', 'postgresql:'].includes(databaseUrl.protocol)) {
+    throw new Error('DATABASE_URL must use the postgres:// or postgresql:// protocol');
+  }
+  if (['localhost', '127.0.0.1', '::1'].includes(databaseUrl.hostname) || databaseUrl.hostname.endsWith('.localhost')) {
+    throw new Error('Production DATABASE_URL must point to the hosted PostgreSQL database, not localhost');
+  }
+  if (!config.database.ssl) {
+    throw new Error('DATABASE_SSL=true is required for production PostgreSQL connections');
+  }
   if (config.corsOrigins.includes('*')) {
     throw new Error('CORS_ALLOWED_ORIGINS must not be * in production');
   }

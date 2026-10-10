@@ -7,7 +7,7 @@ export const pool = config.database.url
   ? new Pool({
       connectionString: config.database.url,
       max: config.database.maxConnections,
-      ssl: config.database.ssl ? { rejectUnauthorized: false } : undefined,
+      ssl: config.database.ssl ? { rejectUnauthorized: true } : undefined,
     })
   : null;
 

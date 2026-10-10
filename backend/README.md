@@ -52,8 +52,9 @@ Frontend Vite proxies `/api` and `/actuator` to this server. Leave
 ## Production checklist
 
 1. Set `NODE_ENV=production`
-2. Provide `JWT_SECRET` (≥32 chars), `DATABASE_URL`, `REDIS_PASSWORD`, `SMTP_HOST`
-3. Set `CORS_ALLOWED_ORIGINS` to the exact frontend origin(s)
-4. Terminate TLS at Nginx/load balancer; never expose Postgres/Redis publicly
-5. Mount a persistent volume for `DOCUMENT_LOCAL_ROOT` (or switch to object storage)
-6. Replace Co-op PayBill / Daraja sandbox credentials before go-live
+2. Copy `.env.production.example` as a checklist and set secrets in the hosting provider, not in Git
+3. Set `DATABASE_URL` to the hosted PostgreSQL URL, `DATABASE_SSL=true`, and run `npm run db:migrate` against that database
+4. Provide a fresh `JWT_SECRET` (≥32 chars), `SMTP_HOST`, and exact `CORS_ALLOWED_ORIGINS`
+5. Terminate TLS at the host/proxy; never expose Postgres publicly
+6. Configure persistent document storage (or object storage) before accepting uploads
+7. Replace all payment placeholders with verified production credentials before enabling payments
