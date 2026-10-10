@@ -1,4 +1,4 @@
-import { stores, newId, now, nextReference } from './database/index.js';
+import { db, newId, now, nextReference } from './database/index.js';
 import { AppError } from './utils/errors.js';
 
 const VALID_TYPES = new Set(['CANDIDATE', 'EMPLOYER', 'INSTITUTION', 'OTHER']);
@@ -7,7 +7,7 @@ const VALID_TYPES = new Set(['CANDIDATE', 'EMPLOYER', 'INSTITUTION', 'OTHER']);
  * Public contact form — matches frontend ContactRequest / ContactResponse.
  */
 export function registerContact(app, prefix) {
-  app.post(`${prefix}/contact`, (req, res, next) => {
+  app.post(`${prefix}/contact`, async (req, res, next) => {
     try {
       const body = req.body || {};
       const fullName = String(body.fullName || '').trim();
@@ -40,7 +40,7 @@ export function registerContact(app, prefix) {
         status: 'NEW',
         createdAt: now(),
       };
-      stores.contacts.push(entry);
+      await db.insert('contacts', entry);
 
       res.status(201).json({
         id: entry.id,

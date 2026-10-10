@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { pipeline } from 'node:stream/promises';
 import multer from 'multer';
 import { requireAuth, isAdmin } from '../middleware/auth.js';
-import { stores, newId, now } from '../database/index.js';
+import { db, newId, now } from '../database/index.js';
 import { storageConfig } from '../config/storage.js';
 import { AppError, assert } from '../utils/errors.js';
 
@@ -40,17 +40,20 @@ async function saveFile(docId, buffer) {
 }
 
 export function registerDocuments(app, prefix) {
-  app.get(`${prefix}/documents`, requireAuth, (req, res) => {
-    let list = stores.documents;
+  app.get(`${prefix}/documents`, requireAuth, async (req, res, next) => {
+    try {
+    let list;
     if (req.query.ownerUserId) {
       if (req.query.ownerUserId !== req.user.sub && !isAdmin(req.user)) {
         return res.status(403).json({ status: 403, message: 'Insufficient permissions' });
       }
-      list = list.filter((d) => d.ownerUserId === req.query.ownerUserId);
+      list = await db.list('documents', { where: { ownerUserId: req.query.ownerUserId } });
     } else if (!isAdmin(req.user)) {
-      list = list.filter((d) => d.ownerUserId === req.user.sub);
+      list = await db.list('documents', { where: { ownerUserId: req.user.sub } });
     }
+    if (!list) list = await db.list('documents', { orderBy: 'createdAt', desc: true });
     res.json(list.map(toDoc));
+    } catch(e) { next(e); }
   });
 
   app.post(`${prefix}/documents`, requireAuth, upload.single('file'), async (req, res, next) => {
@@ -76,8 +79,8 @@ export function registerDocuments(app, prefix) {
       };
       // Dev: mark clean immediately (production would queue a scanner)
       doc.malwareScanStatus = 'CLEAN';
-      stores.documents.push(doc);
-      res.status(201).json(toDoc(doc));
+      const saved = await db.insert('documents', doc).catch(async (error) => { await unlink(storagePath).catch(() => {}); throw error; });
+      res.status(201).json(toDoc(saved));
     } catch (e) {
       next(e);
     }
@@ -85,7 +88,7 @@ export function registerDocuments(app, prefix) {
 
   app.get(`${prefix}/documents/:id/content`, requireAuth, async (req, res, next) => {
     try {
-      const doc = stores.documents.find((d) => d.id === req.params.id);
+      const doc = await db.find('documents', 'id', req.params.id);
       if (!doc) throw new AppError('Document not found', 404);
       if (doc.ownerUserId !== req.user.sub && !isAdmin(req.user)) {
         throw new AppError('Insufficient permissions', 403);
@@ -104,13 +107,12 @@ export function registerDocuments(app, prefix) {
 
   app.delete(`${prefix}/documents/:id`, requireAuth, async (req, res, next) => {
     try {
-      const index = stores.documents.findIndex((d) => d.id === req.params.id);
-      if (index < 0) throw new AppError('Document not found', 404);
-      const doc = stores.documents[index];
+      const doc = await db.find('documents', 'id', req.params.id);
+      if (!doc) throw new AppError('Document not found', 404);
       if (doc.ownerUserId !== req.user.sub && !isAdmin(req.user)) {
         throw new AppError('Insufficient permissions', 403);
       }
-      stores.documents.splice(index, 1);
+      await db.delete('documents', doc.id);
       if (doc.storagePath) {
         await unlink(doc.storagePath).catch(() => {});
       }

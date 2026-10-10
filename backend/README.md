@@ -8,7 +8,7 @@ used by the React (TanStack Start) frontend.
 - Node.js 22+, Express 5, ES modules
 - JWT (Bearer) auth with role-based access
 - bcrypt password hashing
-- PostgreSQL when `DATABASE_URL` is set; otherwise durable in-memory store for local dev
+- PostgreSQL is required for all API data; the server does not start without `DATABASE_URL`
 - Optional Redis
 - Local filesystem document storage (S3-ready config hooks)
 - Co-op PayBill + M-Pesa STK Push scaffolding

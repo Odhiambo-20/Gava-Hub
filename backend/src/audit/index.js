@@ -1,5 +1,5 @@
 import { requireAuth, requireRoles } from '../middleware/auth.js';
-import { stores, newId, now } from '../database/index.js';
+import { db, newId, now } from '../database/index.js';
 import { AppError, assert } from '../utils/errors.js';
 
 function toAudit(e) {
@@ -30,19 +30,22 @@ export async function recordAudit(event) {
     eventData: event.eventData || {},
     occurredAt: event.occurredAt || now(),
   };
-  stores.audit.push(value);
-  return value;
+  return db.insert('audit', value);
 }
 
 export function registerAudit(app, prefix) {
-  app.get(`${prefix}/audit`, requireAuth, requireRoles('ROLE_ADMIN'), (req, res) => {
+  app.get(`${prefix}/audit`, requireAuth, requireRoles('ROLE_ADMIN'), async (req, res, next) => {
+    try {
     const limit = Math.min(Math.max(Number(req.query.limit) || 100, 1), 500);
-    let list = [...stores.audit];
-    if (req.query.action) list = list.filter((e) => e.action === req.query.action);
-    if (req.query.resourceType)
-      list = list.filter((e) => e.resourceType === req.query.resourceType);
-    list.sort((a, b) => b.occurredAt.localeCompare(a.occurredAt));
-    res.json(list.slice(0, limit).map(toAudit));
+    const clauses = [];
+    const values = [];
+    if (req.query.action) { values.push(req.query.action); clauses.push(`action=$${values.length}`); }
+    if (req.query.resourceType) { values.push(req.query.resourceType); clauses.push(`resource_type=$${values.length}`); }
+    values.push(limit);
+    const { rows } = await db.raw(`SELECT * FROM gavahub.audit_event${clauses.length ? ` WHERE ${clauses.join(' AND ')}` : ''} ORDER BY occurred_at DESC LIMIT $${values.length}`, values);
+    const list = rows.map((row) => Object.fromEntries(Object.entries(row).map(([k,v]) => [k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()),v])));
+    res.json(list.map(toAudit));
+    } catch(e) { next(e); }
   });
 
   app.post(`${prefix}/audit`, requireAuth, requireRoles('ROLE_ADMIN'), async (req, res, next) => {

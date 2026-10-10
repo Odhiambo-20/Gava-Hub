@@ -1,5 +1,5 @@
 import { requireAuth, isAdmin, isVerifier } from '../middleware/auth.js';
-import { stores, newId, now, nextReference } from '../database/index.js';
+import { db, newId, now, nextReference } from '../database/index.js';
 import { AppError, assert } from '../utils/errors.js';
 
 function toVerification(v) {
@@ -17,27 +17,23 @@ function toVerification(v) {
 }
 
 export function registerVerifications(app, prefix) {
-  app.get(`${prefix}/verifications`, requireAuth, (req, res) => {
-    let list = stores.verifications;
-    if (!isAdmin(req.user) && !isVerifier(req.user)) {
-      const myCandidateIds = new Set(
-        stores.candidates.filter((c) => c.userId === req.user.sub).map((c) => c.id),
-      );
-      list = list.filter(
-        (v) =>
-          myCandidateIds.has(v.candidateId) ||
-          v.createdByUserId === req.user.sub,
-      );
-    }
-    res.json(list.map(toVerification));
+  app.get(`${prefix}/verifications`, requireAuth, async (req, res, next) => {
+    try {
+      let list = await db.list('verifications', { orderBy: 'createdAt', desc: true });
+      if (!isAdmin(req.user) && !isVerifier(req.user)) {
+        const { rows } = await db.raw('SELECT v.* FROM gavahub.verification v LEFT JOIN gavahub.candidate_profile c ON c.id=v.candidate_id WHERE c.user_id=$1 OR v.created_by_user_id=$1 ORDER BY v.created_at DESC', [req.user.sub]);
+        list = rows.map((row) => Object.fromEntries(Object.entries(row).map(([k,v]) => [k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()),v])));
+      }
+      res.json(list.map(toVerification));
+    } catch(e) { next(e); }
   });
 
-  app.post(`${prefix}/verifications`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/verifications`, requireAuth, async (req, res, next) => {
     try {
       const body = req.body || {};
       assert(body.candidateId, 'candidateId is required');
       assert(body.purpose, 'purpose is required');
-      const candidate = stores.candidates.find((c) => c.id === body.candidateId);
+      const candidate = await db.find('candidates', 'id', body.candidateId);
       assert(candidate, 'Candidate not found', 404);
       const v = {
         id: newId(),
@@ -53,16 +49,15 @@ export function registerVerifications(app, prefix) {
         createdAt: now(),
         updatedAt: now(),
       };
-      stores.verifications.push(v);
-      res.status(201).json(toVerification(v));
+      res.status(201).json(toVerification(await db.insert('verifications', v)));
     } catch (e) {
       next(e);
     }
   });
 
-  app.put(`${prefix}/verifications/:id`, requireAuth, (req, res, next) => {
+  app.put(`${prefix}/verifications/:id`, requireAuth, async (req, res, next) => {
     try {
-      const v = stores.verifications.find((x) => x.id === req.params.id);
+      const v = await db.find('verifications', 'id', req.params.id);
       if (!v) throw new AppError('Verification not found', 404);
       if (
         v.createdByUserId !== req.user.sub &&
@@ -72,24 +67,24 @@ export function registerVerifications(app, prefix) {
         throw new AppError('Insufficient permissions', 403);
       }
       const body = req.body || {};
-      if (body.purpose !== undefined) v.purpose = String(body.purpose).trim();
+      const patch = { updatedAt: now() };
+      if (body.purpose !== undefined) patch.purpose = String(body.purpose).trim();
       if (body.status !== undefined && (isAdmin(req.user) || isVerifier(req.user))) {
-        v.status = body.status;
+        patch.status = body.status;
       }
       if (body.requestingOrganizationId !== undefined) {
-        v.requestingOrganizationId = body.requestingOrganizationId;
+        patch.requestingOrganizationId = body.requestingOrganizationId;
       }
-      v.updatedAt = now();
-      res.json(toVerification(v));
+      res.json(toVerification(await db.update('verifications', v.id, patch)));
     } catch (e) {
       next(e);
     }
   });
 
-  app.post(`${prefix}/verifications/:id/decisions`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/verifications/:id/decisions`, requireAuth, async (req, res, next) => {
     try {
       if (!isVerifier(req.user)) throw new AppError('Insufficient permissions', 403);
-      const v = stores.verifications.find((x) => x.id === req.params.id);
+      const v = await db.find('verifications', 'id', req.params.id);
       if (!v) throw new AppError('Verification not found', 404);
       const body = req.body || {};
       assert(body.decision || body.status, 'decision or status is required');
@@ -98,13 +93,8 @@ export function registerVerifications(app, prefix) {
         ['APPROVED', 'REJECTED', 'NEEDS_INFO'].includes(decision),
         'decision must be APPROVED, REJECTED or NEEDS_INFO',
       );
-      v.decision = decision;
-      v.status = decision === 'NEEDS_INFO' ? 'NEEDS_INFO' : decision;
-      v.completedAt = decision === 'NEEDS_INFO' ? null : now();
-      v.decisionNotes = body.notes || body.reason || null;
-      v.decidedByUserId = req.user.sub;
-      v.updatedAt = now();
-      res.json(toVerification(v));
+      const updated = await db.update('verifications', v.id, { decision, status: decision, completedAt: decision === 'NEEDS_INFO' ? null : now(), decisionNotes: body.notes || body.reason || null, decidedByUserId: req.user.sub, updatedAt: now() });
+      res.json(toVerification(updated));
     } catch (e) {
       next(e);
     }

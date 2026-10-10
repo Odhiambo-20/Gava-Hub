@@ -186,6 +186,14 @@ CREATE TABLE IF NOT EXISTS gavahub.payment (
 CREATE INDEX IF NOT EXISTS idx_payment_invoice ON gavahub.payment (invoice_id);
 CREATE INDEX IF NOT EXISTS idx_payment_user ON gavahub.payment (user_id);
 
+-- Durable request replay protection for payment initiation.
+CREATE TABLE IF NOT EXISTS gavahub.idempotency_record (
+  idempotency_key TEXT PRIMARY KEY,
+  response_status INT NOT NULL,
+  response_body JSONB NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ---------------------------------------------------------------------------
 -- Notifications
 -- ---------------------------------------------------------------------------

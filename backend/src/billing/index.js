@@ -1,5 +1,5 @@
 import { requireAuth, isAdmin } from '../middleware/auth.js';
-import { stores, newId, now, nextReference } from '../database/index.js';
+import { db, newId, now, nextReference } from '../database/index.js';
 import { AppError, assert } from '../utils/errors.js';
 
 function toInvoice(inv) {
@@ -9,7 +9,7 @@ function toInvoice(inv) {
     billedUserId: inv.billedUserId || undefined,
     billedOrganizationId: inv.billedOrganizationId || undefined,
     status: inv.status,
-    total: inv.total,
+    total: Number(inv.total),
     currency: inv.currency,
     dueAt: inv.dueAt || undefined,
     paidAt: inv.paidAt || undefined,
@@ -18,23 +18,26 @@ function toInvoice(inv) {
 }
 
 export function registerBilling(app, prefix) {
-  app.get(`${prefix}/invoices`, requireAuth, (req, res) => {
-    let list = stores.invoices;
+  app.get(`${prefix}/invoices`, requireAuth, async (req, res, next) => {
+    try {
+    let list;
     if (req.query.userId) {
       if (req.query.userId !== req.user.sub && !isAdmin(req.user)) {
         return res.status(403).json({ status: 403, message: 'Insufficient permissions' });
       }
-      list = list.filter((i) => i.billedUserId === req.query.userId);
+      list = await db.list('invoices', { where: { billedUserId: req.query.userId } });
     } else if (!isAdmin(req.user)) {
-      list = list.filter((i) => i.billedUserId === req.user.sub);
+      list = await db.list('invoices', { where: { billedUserId: req.user.sub } });
     }
-    list = [...list].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+    if (!list) list = await db.list('invoices', { orderBy: 'createdAt', desc: true });
+    list = [...list].sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
     res.json(list.map(toInvoice));
+    } catch(e) { next(e); }
   });
 
-  app.get(`${prefix}/invoices/:id`, requireAuth, (req, res, next) => {
+  app.get(`${prefix}/invoices/:id`, requireAuth, async (req, res, next) => {
     try {
-      const inv = stores.invoices.find((i) => i.id === req.params.id);
+      const inv = await db.find('invoices', 'id', req.params.id);
       if (!inv) throw new AppError('Invoice not found', 404);
       if (inv.billedUserId !== req.user.sub && !isAdmin(req.user)) {
         throw new AppError('Insufficient permissions', 403);
@@ -45,7 +48,7 @@ export function registerBilling(app, prefix) {
     }
   });
 
-  app.post(`${prefix}/invoices`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/invoices`, requireAuth, async (req, res, next) => {
     try {
       const body = req.body || {};
       const total = Number(body.total);
@@ -66,8 +69,7 @@ export function registerBilling(app, prefix) {
         createdAt: now(),
         updatedAt: now(),
       };
-      stores.invoices.push(inv);
-      res.status(201).json(toInvoice(inv));
+      res.status(201).json(toInvoice(await db.insert('invoices', inv)));
     } catch (e) {
       next(e);
     }

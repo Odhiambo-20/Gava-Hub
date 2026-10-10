@@ -9,7 +9,7 @@ import { config, validateProductionConfig } from './config/index.js';
 import { validatePaymentConfig } from './config/payments.js';
 import { ensureStorageRoot } from './config/storage.js';
 import { connectRedis, closeRedis } from './config/redis.js';
-import { closeDatabase } from './database/index.js';
+import { closeDatabase, pool } from './database/index.js';
 import { errorHandler, notFoundHandler } from './middleware/errors.js';
 
 import { registerAuth } from './auth/index.js';
@@ -107,6 +107,8 @@ app.use(notFoundHandler);
 app.use(errorHandler);
 
 async function start() {
+  if (!pool) throw new Error('DATABASE_URL is required. Configure PostgreSQL before starting the backend.');
+  await pool.query('SELECT 1');
   try {
     await ensureStorageRoot();
   } catch (err) {
@@ -124,7 +126,7 @@ async function start() {
   const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Wihl Verify API listening on http://0.0.0.0:${port}`);
     console.log(`API prefix: ${api}`);
-    console.log(`Storage: ${config.database.url ? 'postgres' : 'memory'} | env: ${config.nodeEnv}`);
+    console.log(`Database: postgres | env: ${config.nodeEnv}`);
   });
 
   const shutdown = async (signal) => {

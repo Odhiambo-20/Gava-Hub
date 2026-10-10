@@ -1,13 +1,13 @@
 import { requireAuth, isAdmin } from '../middleware/auth.js';
 import { paymentConfig } from '../config/payments.js';
-import { stores, newId, now } from '../database/index.js';
+import { db, newId, now } from '../database/index.js';
 import { AppError, assert } from '../utils/errors.js';
 
 function toPayment(p) {
   return {
     id: p.id,
     invoiceId: p.invoiceId,
-    amount: p.amount,
+    amount: Number(p.amount),
     currency: p.currency,
     status: p.status,
     failureReason: p.failureReason || undefined,
@@ -26,34 +26,37 @@ export function registerPayments(app, prefix) {
     });
   });
 
-  app.get(`${prefix}/payments`, requireAuth, (req, res) => {
-    let list = stores.payments;
+  app.get(`${prefix}/payments`, requireAuth, async (req, res, next) => {
+    try {
+    let list;
     if (req.query.userId) {
       if (req.query.userId !== req.user.sub && !isAdmin(req.user)) {
         return res.status(403).json({ status: 403, message: 'Insufficient permissions' });
       }
-      list = list.filter((p) => p.userId === req.query.userId);
+      list = await db.list('payments', { where: { userId: req.query.userId } });
     } else if (!isAdmin(req.user)) {
-      list = list.filter((p) => p.userId === req.user.sub);
+      list = await db.list('payments', { where: { userId: req.user.sub } });
     }
+    if (!list) list = await db.list('payments', { orderBy: 'createdAt', desc: true });
     res.json(list.map(toPayment));
+    } catch(e) { next(e); }
   });
 
   /**
    * M-Pesa STK Push (or Co-op PayBill acknowledgement).
    * Supports Idempotency-Key header as sent by the frontend.
    */
-  app.post(`${prefix}/payments/mpesa/stk-push`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/payments/mpesa/stk-push`, requireAuth, async (req, res, next) => {
     try {
       const idemKey = req.get('idempotency-key');
-      if (idemKey && stores.idempotency.has(idemKey)) {
-        const cached = stores.idempotency.get(idemKey);
-        return res.status(cached.statusCode).json(cached.body);
+      if (idemKey) {
+        const { rows } = await db.raw('SELECT response_status, response_body FROM gavahub.idempotency_record WHERE idempotency_key=$1', [idemKey]);
+        if (rows[0]) return res.status(rows[0].response_status).json(rows[0].response_body);
       }
 
       const body = req.body || {};
       assert(body.invoiceId, 'invoiceId is required');
-      const invoice = stores.invoices.find((i) => i.id === body.invoiceId);
+      const invoice = await db.find('invoices', 'id', body.invoiceId);
       assert(invoice, 'Invoice not found', 404);
       if (invoice.billedUserId !== req.user.sub && !isAdmin(req.user)) {
         throw new AppError('Insufficient permissions', 403);
@@ -81,28 +84,34 @@ export function registerPayments(app, prefix) {
         createdAt: now(),
         updatedAt: now(),
       };
-      stores.payments.push(payment);
+      const saved = await db.transaction(async (tx) => {
+        if (idemKey) {
+          await tx.raw('SELECT pg_advisory_xact_lock(hashtext($1))', [idemKey]);
+          const { rows } = await tx.raw('SELECT response_status, response_body FROM gavahub.idempotency_record WHERE idempotency_key=$1', [idemKey]);
+          if (rows[0]) return { cachedStatus: rows[0].response_status, cachedBody: rows[0].response_body };
+        }
+        const inserted = await tx.insert('payments', payment);
+        if (idemKey) await tx.raw('INSERT INTO gavahub.idempotency_record (idempotency_key, response_status, response_body) VALUES ($1, $2, $3::jsonb)', [idemKey, 202, JSON.stringify(toPayment(inserted))]);
+        return inserted;
+      });
 
       // In DARAJA mode a real STK request would be sent here.
       // For COOP_PAYBILL the frontend shows paybillNumber/accountNumber from /configuration.
 
-      const responseBody = toPayment(payment);
-      if (idemKey) {
-        stores.idempotency.set(idemKey, { statusCode: 202, body: responseBody });
-      }
-      res.status(202).json(responseBody);
+      if (saved.cachedBody) return res.status(saved.cachedStatus).json(saved.cachedBody);
+      res.status(202).json(toPayment(saved));
     } catch (e) {
       next(e);
     }
   });
 
   /** Manual confirmation endpoint for Co-op PayBill bank reference */
-  app.post(`${prefix}/payments/confirm`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/payments/confirm`, requireAuth, async (req, res, next) => {
     try {
       const body = req.body || {};
       assert(body.invoiceId, 'invoiceId is required');
       assert(body.reference, 'reference is required');
-      const invoice = stores.invoices.find((i) => i.id === body.invoiceId);
+      const invoice = await db.find('invoices', 'id', body.invoiceId);
       assert(invoice, 'Invoice not found', 404);
       if (invoice.billedUserId !== req.user.sub && !isAdmin(req.user)) {
         throw new AppError('Insufficient permissions', 403);
@@ -121,8 +130,7 @@ export function registerPayments(app, prefix) {
         createdAt: now(),
         updatedAt: now(),
       };
-      stores.payments.push(payment);
-      res.status(202).json(toPayment(payment));
+      res.status(202).json(toPayment(await db.insert('payments', payment)));
     } catch (e) {
       next(e);
     }

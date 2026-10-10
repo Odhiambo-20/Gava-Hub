@@ -1,5 +1,5 @@
 import { requireAuth, isAdmin } from '../middleware/auth.js';
-import { stores, newId, now } from '../database/index.js';
+import { db, newId, now } from '../database/index.js';
 import { AppError, assert } from '../utils/errors.js';
 
 function toNotification(n) {
@@ -16,20 +16,23 @@ function toNotification(n) {
 }
 
 export function registerNotifications(app, prefix) {
-  app.get(`${prefix}/notifications`, requireAuth, (req, res) => {
-    let list = stores.notifications;
+  app.get(`${prefix}/notifications`, requireAuth, async (req, res, next) => {
+    try {
+    let list;
     if (req.query.userId) {
       if (req.query.userId !== req.user.sub && !isAdmin(req.user)) {
         return res.status(403).json({ status: 403, message: 'Insufficient permissions' });
       }
-      list = list.filter((n) => n.recipientUserId === req.query.userId);
+      list = await db.list('notifications', { where: { recipientUserId: req.query.userId } });
     } else if (!isAdmin(req.user)) {
-      list = list.filter((n) => n.recipientUserId === req.user.sub);
+      list = await db.list('notifications', { where: { recipientUserId: req.user.sub } });
     }
+    if (!list) list = await db.list('notifications', { orderBy: 'createdAt', desc: true });
     res.json(list.map(toNotification));
+    } catch(e) { next(e); }
   });
 
-  app.post(`${prefix}/notifications`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/notifications`, requireAuth, async (req, res, next) => {
     try {
       const body = req.body || {};
       assert(body.recipientUserId, 'recipientUserId is required');
@@ -50,8 +53,7 @@ export function registerNotifications(app, prefix) {
         createdAt: now(),
         updatedAt: now(),
       };
-      stores.notifications.push(n);
-      res.status(201).json(toNotification(n));
+      res.status(201).json(toNotification(await db.insert('notifications', n)));
     } catch (e) {
       next(e);
     }

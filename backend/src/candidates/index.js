@@ -1,5 +1,5 @@
 import { requireAuth, isAdmin } from '../middleware/auth.js';
-import { stores, newId, now } from '../database/index.js';
+import { db, newId, now } from '../database/index.js';
 import { AppError, assert } from '../utils/errors.js';
 
 function toCandidate(c) {
@@ -15,23 +15,26 @@ function toCandidate(c) {
 }
 
 export function registerCandidates(app, prefix) {
-  app.get(`${prefix}/candidates`, requireAuth, (req, res) => {
-    let list = stores.candidates;
+  app.get(`${prefix}/candidates`, requireAuth, async (req, res, next) => {
+    try {
+    let list;
     if (req.query.userId) {
       // Users may only query their own unless admin
       if (req.query.userId !== req.user.sub && !isAdmin(req.user)) {
         return res.status(403).json({ status: 403, message: 'Insufficient permissions' });
       }
-      list = list.filter((c) => c.userId === req.query.userId);
+      list = await db.list('candidates', { where: { userId: req.query.userId } });
     } else if (!isAdmin(req.user) && !req.user.roles.includes('ROLE_VERIFIER')) {
-      list = list.filter((c) => c.userId === req.user.sub);
+      list = await db.list('candidates', { where: { userId: req.user.sub } });
     }
+    if (!list) list = await db.list('candidates');
     res.json(list.map(toCandidate));
+    } catch (e) { next(e); }
   });
 
-  app.get(`${prefix}/candidates/:id`, requireAuth, (req, res, next) => {
+  app.get(`${prefix}/candidates/:id`, requireAuth, async (req, res, next) => {
     try {
-      const c = stores.candidates.find((x) => x.id === req.params.id);
+      const c = await db.find('candidates', 'id', req.params.id);
       if (!c) throw new AppError('Candidate not found', 404);
       if (c.userId !== req.user.sub && !isAdmin(req.user) && !req.user.roles.includes('ROLE_VERIFIER')) {
         throw new AppError('Insufficient permissions', 403);
@@ -42,7 +45,7 @@ export function registerCandidates(app, prefix) {
     }
   });
 
-  app.post(`${prefix}/candidates`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/candidates`, requireAuth, async (req, res, next) => {
     try {
       const body = req.body || {};
       const userId = body.userId || req.user.sub;
@@ -60,27 +63,26 @@ export function registerCandidates(app, prefix) {
         createdAt: now(),
         updatedAt: now(),
       };
-      stores.candidates.push(candidate);
-      res.status(201).json(toCandidate(candidate));
+      res.status(201).json(toCandidate(await db.insert('candidates', candidate)));
     } catch (e) {
       next(e);
     }
   });
 
-  app.put(`${prefix}/candidates/:id`, requireAuth, (req, res, next) => {
+  app.put(`${prefix}/candidates/:id`, requireAuth, async (req, res, next) => {
     try {
-      const c = stores.candidates.find((x) => x.id === req.params.id);
+      const c = await db.find('candidates', 'id', req.params.id);
       if (!c) throw new AppError('Candidate not found', 404);
       if (c.userId !== req.user.sub && !isAdmin(req.user)) {
         throw new AppError('Insufficient permissions', 403);
       }
       const body = req.body || {};
-      if (body.givenName !== undefined) c.givenName = String(body.givenName).trim();
-      if (body.familyName !== undefined) c.familyName = String(body.familyName).trim();
-      if (body.headline !== undefined) c.headline = body.headline ? String(body.headline).trim() : null;
-      if (body.profileStatus !== undefined) c.profileStatus = body.profileStatus;
-      c.updatedAt = now();
-      res.json(toCandidate(c));
+      const patch = { updatedAt: now() };
+      if (body.givenName !== undefined) patch.givenName = String(body.givenName).trim();
+      if (body.familyName !== undefined) patch.familyName = String(body.familyName).trim();
+      if (body.headline !== undefined) patch.headline = body.headline ? String(body.headline).trim() : null;
+      if (body.profileStatus !== undefined) patch.profileStatus = body.profileStatus;
+      res.json(toCandidate(await db.update('candidates', c.id, patch)));
     } catch (e) {
       next(e);
     }

@@ -1,5 +1,5 @@
 import { requireAuth, isAdmin } from '../middleware/auth.js';
-import { stores, newId, now } from '../database/index.js';
+import { db, newId, now } from '../database/index.js';
 import { AppError, assert } from '../utils/errors.js';
 import { getUserById } from '../auth/service.js';
 
@@ -14,10 +14,9 @@ function toOrg(o) {
   };
 }
 
-function memberOf(orgId, userId) {
-  return stores.organizationMembers.some(
-    (m) => m.organizationId === orgId && m.userId === userId && m.status === 'ACTIVE',
-  );
+async function memberOf(orgId, userId) {
+  const { rows } = await db.raw('SELECT 1 FROM gavahub.organization_member WHERE organization_id = $1 AND user_id = $2 AND status = \'ACTIVE\' LIMIT 1', [orgId, userId]);
+  return rows.length > 0;
 }
 
 function toMember(m) {
@@ -33,34 +32,29 @@ function toMember(m) {
 }
 
 export function registerOrganizations(app, prefix) {
-  app.get(`${prefix}/organizations`, requireAuth, (req, res) => {
-    let list = stores.organizations;
+  app.get(`${prefix}/organizations`, requireAuth, async (req, res, next) => {
+    try {
+    let list;
     if (req.query.userId) {
       if (req.query.userId !== req.user.sub && !isAdmin(req.user)) {
         return res.status(403).json({ status: 403, message: 'Insufficient permissions' });
       }
-      const orgIds = new Set(
-        stores.organizationMembers
-          .filter((m) => m.userId === req.query.userId && m.status === 'ACTIVE')
-          .map((m) => m.organizationId),
-      );
-      list = list.filter((o) => orgIds.has(o.id) || o.ownerUserId === req.query.userId);
+      const { rows } = await db.raw('SELECT o.* FROM gavahub.organization o LEFT JOIN gavahub.organization_member m ON m.organization_id=o.id AND m.user_id=$1 AND m.status=\'ACTIVE\' WHERE m.user_id IS NOT NULL OR o.owner_user_id=$1 ORDER BY o.created_at DESC', [req.query.userId]);
+      list = rows.map((row) => Object.fromEntries(Object.entries(row).map(([k,v]) => [k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()),v])));
     } else if (!isAdmin(req.user)) {
-      const orgIds = new Set(
-        stores.organizationMembers
-          .filter((m) => m.userId === req.user.sub && m.status === 'ACTIVE')
-          .map((m) => m.organizationId),
-      );
-      list = list.filter((o) => orgIds.has(o.id) || o.ownerUserId === req.user.sub);
+      const { rows } = await db.raw('SELECT DISTINCT o.* FROM gavahub.organization o LEFT JOIN gavahub.organization_member m ON m.organization_id=o.id AND m.user_id=$1 AND m.status=\'ACTIVE\' WHERE m.user_id IS NOT NULL OR o.owner_user_id=$1 ORDER BY o.created_at DESC', [req.user.sub]);
+      list = rows.map((row) => Object.fromEntries(Object.entries(row).map(([k,v]) => [k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase()),v])));
     }
+    if (!list) list = await db.list('organizations', { orderBy: 'createdAt', desc: true });
     res.json(list.map(toOrg));
+    } catch(e) { next(e); }
   });
 
-  app.get(`${prefix}/organizations/:id`, requireAuth, (req, res, next) => {
+  app.get(`${prefix}/organizations/:id`, requireAuth, async (req, res, next) => {
     try {
-      const o = stores.organizations.find((x) => x.id === req.params.id);
+      const o = await db.find('organizations', 'id', req.params.id);
       if (!o) throw new AppError('Organization not found', 404);
-      if (!isAdmin(req.user) && !memberOf(o.id, req.user.sub) && o.ownerUserId !== req.user.sub) {
+      if (!isAdmin(req.user) && !await memberOf(o.id, req.user.sub) && o.ownerUserId !== req.user.sub) {
         throw new AppError('Insufficient permissions', 403);
       }
       res.json(toOrg(o));
@@ -69,7 +63,7 @@ export function registerOrganizations(app, prefix) {
     }
   });
 
-  app.post(`${prefix}/organizations`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/organizations`, requireAuth, async (req, res, next) => {
     try {
       const body = req.body || {};
       assert(body.legalName, 'legalName is required');
@@ -83,8 +77,9 @@ export function registerOrganizations(app, prefix) {
         createdAt: now(),
         updatedAt: now(),
       };
-      stores.organizations.push(org);
-      stores.organizationMembers.push({
+      await db.transaction(async (tx) => {
+      await tx.insert('organizations', org);
+      await tx.insert('organizationMembers', {
         organizationId: org.id,
         userId: req.user.sub,
         email: req.user.email,
@@ -93,69 +88,67 @@ export function registerOrganizations(app, prefix) {
         status: 'ACTIVE',
         joinedAt: now(),
       });
+      });
       res.status(201).json(toOrg(org));
     } catch (e) {
       next(e);
     }
   });
 
-  app.put(`${prefix}/organizations/:id`, requireAuth, (req, res, next) => {
+  app.put(`${prefix}/organizations/:id`, requireAuth, async (req, res, next) => {
     try {
-      const o = stores.organizations.find((x) => x.id === req.params.id);
+      const o = await db.find('organizations', 'id', req.params.id);
       if (!o) throw new AppError('Organization not found', 404);
-      if (!isAdmin(req.user) && o.ownerUserId !== req.user.sub && !memberOf(o.id, req.user.sub)) {
+      if (!isAdmin(req.user) && o.ownerUserId !== req.user.sub && !await memberOf(o.id, req.user.sub)) {
         throw new AppError('Insufficient permissions', 403);
       }
       const body = req.body || {};
-      if (body.legalName !== undefined) o.legalName = String(body.legalName).trim();
-      if (body.tradingName !== undefined)
-        o.tradingName = body.tradingName ? String(body.tradingName).trim() : null;
-      if (body.organizationType !== undefined) o.organizationType = body.organizationType;
-      if (body.status !== undefined) o.status = body.status;
-      o.updatedAt = now();
-      res.json(toOrg(o));
+      const patch = { updatedAt: now() };
+      if (body.legalName !== undefined) patch.legalName = String(body.legalName).trim();
+      if (body.tradingName !== undefined) patch.tradingName = body.tradingName ? String(body.tradingName).trim() : null;
+      if (body.organizationType !== undefined) patch.organizationType = body.organizationType;
+      if (body.status !== undefined) patch.status = body.status;
+      res.json(toOrg(await db.update('organizations', o.id, patch)));
     } catch (e) {
       next(e);
     }
   });
 
-  app.get(`${prefix}/organizations/:id/members`, requireAuth, (req, res, next) => {
+  app.get(`${prefix}/organizations/:id/members`, requireAuth, async (req, res, next) => {
     try {
-      const o = stores.organizations.find((x) => x.id === req.params.id);
+      const o = await db.find('organizations', 'id', req.params.id);
       if (!o) throw new AppError('Organization not found', 404);
-      if (!isAdmin(req.user) && !memberOf(o.id, req.user.sub) && o.ownerUserId !== req.user.sub) {
+      if (!isAdmin(req.user) && !await memberOf(o.id, req.user.sub) && o.ownerUserId !== req.user.sub) {
         throw new AppError('Insufficient permissions', 403);
       }
-      const members = stores.organizationMembers.filter((m) => m.organizationId === o.id);
+      const members = await db.list('organizationMembers', { where: { organizationId: o.id } });
       res.json(members.map(toMember));
     } catch (e) {
       next(e);
     }
   });
 
-  app.post(`${prefix}/organizations/:id/members`, requireAuth, (req, res, next) => {
+  app.post(`${prefix}/organizations/:id/members`, requireAuth, async (req, res, next) => {
     try {
-      const o = stores.organizations.find((x) => x.id === req.params.id);
+      const o = await db.find('organizations', 'id', req.params.id);
       if (!o) throw new AppError('Organization not found', 404);
       if (!isAdmin(req.user) && o.ownerUserId !== req.user.sub) {
         throw new AppError('Insufficient permissions', 403);
       }
       const body = req.body || {};
       assert(body.userId || body.email, 'userId or email is required');
-      let target = body.userId ? getUserById(body.userId) : null;
+      let target = body.userId ? await getUserById(body.userId) : null;
       if (!target && body.email) {
-        target = stores.users.find((u) => u.email === String(body.email).trim().toLowerCase());
+        target = await db.find('users', 'email', String(body.email).trim().toLowerCase());
       }
       assert(target, 'User not found', 404);
 
-      const existing = stores.organizationMembers.find(
-        (m) => m.organizationId === o.id && m.userId === target.id,
-      );
-      if (existing) {
-        existing.status = 'ACTIVE';
-        existing.memberRole = body.memberRole || existing.memberRole || 'MEMBER';
+      const { rows: matches } = await db.raw('SELECT * FROM gavahub.organization_member WHERE organization_id=$1 AND user_id=$2', [o.id, target.id]);
+      const found = matches[0];
+      if (found) {
+        await db.raw('UPDATE gavahub.organization_member SET status=$3, member_role=$4 WHERE organization_id=$1 AND user_id=$2', [o.id, target.id, 'ACTIVE', body.memberRole || found.member_role || 'MEMBER']);
       } else {
-        stores.organizationMembers.push({
+        await db.insert('organizationMembers', {
           organizationId: o.id,
           userId: target.id,
           email: target.email,
@@ -165,7 +158,7 @@ export function registerOrganizations(app, prefix) {
           joinedAt: now(),
         });
       }
-      const members = stores.organizationMembers.filter((m) => m.organizationId === o.id);
+      const members = await db.list('organizationMembers', { where: { organizationId: o.id } });
       res.status(201).json(members.map(toMember));
     } catch (e) {
       next(e);
