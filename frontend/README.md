@@ -58,6 +58,11 @@ hosted separately, set the complete HTTPS versioned URL at build time:
 VITE_API_BASE_URL=https://api.yourdomain.example/api/v1
 ```
 
+`VITE_API_BASE_URL` is embedded into the frontend when it is built. Configure
+it in the build environment (not only in cPanel's runtime environment) before
+running `npm run build`. Use your backend's real HTTPS API URL. Do not commit a
+production `.env` file or put any server secrets in this variable.
+
 The backend's `CORS_ALLOWED_ORIGINS` must contain the exact frontend origin.
 Never put database, JWT, M-Pesa, SMTP, or other server secrets in a `VITE_`
 variable; Vite variables are included in browser-delivered code.
@@ -101,6 +106,7 @@ token expiry clears the stored session.
 ```bash
 npm run dev        # start the development server
 npm run build      # create a production build
+npm run start      # run the production Nitro server
 npm run preview    # preview the production build
 npm run lint       # run ESLint
 npm run format     # format files with Prettier
@@ -122,13 +128,31 @@ platform:
 
 ```bash
 npm ci
-npm run build
+VITE_API_BASE_URL=https://YOUR_DEPLOYED_BACKEND_HOST/api/v1 npm run build
 ```
+
+Replace `https://YOUR_DEPLOYED_BACKEND_HOST/api/v1` with the backend's real
+public HTTPS base URL. The production build now stops if this value is missing,
+uses HTTP/localhost, or omits `/api/v1`. Set it on the command that builds the
+frontend; cPanel's runtime environment variables alone cannot change a URL
+already embedded in the built browser assets.
 
 Production requirements:
 
+- Use Node.js 22.12 or newer, matching the `engines` field in `package.json`.
+- The production server entry point is `.output/server/index.mjs`; the start
+  command is `npm run start` (`node .output/server/index.mjs`). Build output is
+  an SSR application, so do not upload it as a static-only site to `public_html`.
+- In cPanel's Node.js application, use the project directory as the application
+  root and set `app.js` as the startup file. This small cPanel-compatible entry
+  imports the generated Nitro server. Select Node.js 22.12 or newer, set the
+  application mode to Production, install dependencies with `npm ci`, build
+  with the HTTPS API URL supplied in the build environment, and restart the
+  application. The equivalent direct start command is `npm run start`. Confirm
+  the provider supports the required Node version and SSR process. Follow
+  [cPanel's Node.js application setup guide](https://docs.cpanel.net/knowledge-base/web-services/how-to-install-a-node.js-application/).
 - Serve the application over HTTPS.
-- Route `/api` to the Spring Boot backend through Nginx or a cloud load balancer.
+- Route `/api` to the deployed backend through Nginx or a cloud load balancer.
 - Configure the exact frontend origins in backend CORS settings.
 - Configure security headers and a restrictive Content Security Policy.
 - Keep all backend credentials in the server-side secret manager.
