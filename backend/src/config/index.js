@@ -72,7 +72,6 @@ export function validateProductionConfig() {
   const required = [
     ['DATABASE_URL', config.database.url],
     ['JWT_SECRET', config.security.jwtSecret],
-    ['SMTP_HOST', config.mail.host],
   ];
   const missing = required.filter(([, v]) => !v).map(([n]) => n);
   if (missing.length) {
@@ -90,11 +89,14 @@ export function validateProductionConfig() {
   if (!['postgres:', 'postgresql:'].includes(databaseUrl.protocol)) {
     throw new Error('DATABASE_URL must use the postgres:// or postgresql:// protocol');
   }
-  if (['localhost', '127.0.0.1', '::1'].includes(databaseUrl.hostname) || databaseUrl.hostname.endsWith('.localhost')) {
-    throw new Error('Production DATABASE_URL must point to the hosted PostgreSQL database, not localhost');
+  const isLoopbackDatabase =
+    ['localhost', '127.0.0.1', '::1'].includes(databaseUrl.hostname) ||
+    databaseUrl.hostname.endsWith('.localhost');
+  if (isLoopbackDatabase && config.database.ssl) {
+    throw new Error('Set DATABASE_SSL=false when PostgreSQL is on the same server and DATABASE_URL uses localhost');
   }
-  if (!config.database.ssl) {
-    throw new Error('DATABASE_SSL=true is required for production PostgreSQL connections');
+  if (!isLoopbackDatabase && !config.database.ssl) {
+    throw new Error('DATABASE_SSL=true is required for remote production PostgreSQL connections');
   }
   if (config.corsOrigins.includes('*')) {
     throw new Error('CORS_ALLOWED_ORIGINS must not be * in production');
